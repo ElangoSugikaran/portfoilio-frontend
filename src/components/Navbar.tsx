@@ -71,7 +71,7 @@ export default function Navbar() {
   const scrollTo = (href: string) => {
     setIsOpen(false)
     if (href.startsWith('/')) {
-      // Handle external routes like /blog
+      // Handle external routes
       navigate(href)
       return
     }
