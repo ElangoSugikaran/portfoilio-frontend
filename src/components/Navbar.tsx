@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Menu, X, Sun, Palette } from 'lucide-react'
 import { NAV_LINKS } from '@/lib/constants'
 
@@ -97,7 +98,10 @@ export default function Navbar() {
 
   return (
     <>
-      <header
+      <motion.header
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="fixed inset-x-0 top-0 z-50 flex justify-center pt-4"
       >
         <div
@@ -163,16 +167,19 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* ── Mobile drawer ── */}
       {isOpen && (
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.2 }}
           className="
             fixed inset-x-4 top-[72px] z-40
-            bg-background/95 backdrop-blur-2xl
-            rounded-2xl border border-border
-            shadow-2xl shadow-black/12 p-4 lg:hidden
+            bg-background/60 backdrop-blur-3xl
+            rounded-2xl border border-border/50
+            shadow-xl p-4 lg:hidden
           "
         >
 
@@ -200,7 +207,7 @@ export default function Navbar() {
             })}
           </nav>
 
-        </div>
+        </motion.div>
       )}
     </>
   )
