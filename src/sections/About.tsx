@@ -23,7 +23,7 @@ const GridBackground = () => (
 
 export function About() {
   const containerRef = useRef<HTMLElement>(null)
-  
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start end", "end start"]
@@ -38,8 +38,8 @@ export function About() {
       <GridBackground />
 
       {/* Deep Glowing Orbs for Glassmorphism Refraction */}
-      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-primary/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-      <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+      <div className="absolute top-0 right-1/4 w-150 h-150 bg-primary/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+      <div className="absolute bottom-0 left-1/4 w-125 h-125 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
 
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-16">
         {/* Section Header */}
@@ -50,34 +50,33 @@ export function About() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex items-center gap-6"
         >
-          <div className="w-16 h-[2px] bg-gradient-to-r from-primary to-transparent" />
+          <div className="w-16 h-0.5 bg-linear-to-r from-primary to-transparent" />
           <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-            About <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">Me</span>
+            About <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-400">Me</span>
           </h2>
         </motion.div>
 
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 auto-rows-[minmax(180px,auto)]">
-          
+
           {/* Card 2: The Image */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-            className="md:col-span-2 md:row-span-2 bg-card text-card-foreground border border-border rounded-[2rem] overflow-hidden relative min-h-[400px] flex items-center justify-center group shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+            className="col-span-1 md:col-span-3 lg:col-span-2 row-span-2 bg-card rounded-3xl border border-border/50 overflow-hidden relative group min-h-100"
           >
             {/* Parallax Image */}
-            <motion.div style={{ y: imageY }} className="absolute inset-x-0 -top-[15px] -bottom-[15px] z-0">
-              <img 
-                src="/images/about-section/about-me.png" 
-                alt="About Me" 
+            <motion.div style={{ y: imageY }} className="absolute inset-x-0 -top-3.75 -bottom-3.75 w-full h-[110%]">
+              <img
+                src="/images/about-section/about-me.png"
+                alt="About Me"
                 className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
               />
             </motion.div>
-            
-            {/* Gradient overlay to ensure border blend and add style */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10 pointer-events-none" />
+
+            {/* Gradient overlay removed to keep image clear */}
           </motion.div>
 
           {/* Card 1: The Bio (Span 3 columns on desktop) */}
@@ -92,7 +91,7 @@ export function About() {
             <Sparkles className="w-8 h-8 text-primary mb-8 relative z-10" />
             <div className="space-y-6 relative z-10">
               <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-[1.1] tracking-tight">
-                Architecting <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">scalable systems</span> & crafting <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">fluid experiences</span>.
+                Architecting <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">scalable systems</span> & crafting <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">fluid experiences</span>.
               </h3>
               <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl font-medium">
                 I am a Full Stack Engineer who doesn't just write code; I build digital infrastructure. My approach merges the rigor of backend systems architecture with the precision of modern frontend engineering to transform complex challenges into seamless, intuitive platforms.
@@ -117,7 +116,7 @@ export function About() {
                 <p className="text-foreground font-bold tracking-wide">Global Remote</p>
               </div>
             </div>
-            
+
             <div className="h-px w-full bg-border" />
 
             <div className="flex items-center gap-4">
@@ -138,7 +137,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="md:col-span-3 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-[2rem] p-8 md:p-10 flex flex-col justify-between hover:-translate-y-1 hover:shadow-xl transition-all duration-500 shadow-lg shadow-primary/20 overflow-hidden relative"
+            className="md:col-span-3 bg-linear-to-br from-primary to-primary/80 text-primary-foreground rounded-[2rem] p-8 md:p-10 flex flex-col justify-between hover:-translate-y-1 hover:shadow-xl transition-all duration-500 shadow-lg shadow-primary/20 overflow-hidden relative"
           >
             <div className="absolute top-0 right-0 w-full h-full bg-[url('/images/hero-section/hero-section-video.mp4')] bg-cover opacity-10 mix-blend-overlay pointer-events-none" />
             <div className="flex justify-between items-start relative z-10">
