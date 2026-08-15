@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { MapPin, Code2, Rocket, Sparkles } from 'lucide-react'
+import { MapPin, Code2, Rocket, Sparkles, User } from 'lucide-react'
 import { useRef } from 'react'
 
 const GridBackground = () => (
@@ -48,12 +48,18 @@ export function About() {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex items-center gap-6"
+          className="flex items-start gap-4 md:gap-6"
         >
-          <div className="w-16 h-0.5 bg-linear-to-r from-primary to-transparent" />
-          <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-            About <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-400">Me</span>
-          </h2>
+          <div className="w-12 md:w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0 mt-6 md:mt-8" />
+          <div className="flex flex-col gap-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest w-fit">
+              <User className="w-3.5 h-3.5" />
+              Introduction
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
+              About <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-400">Me</span>
+            </h2>
+          </div>
         </motion.div>
 
         {/* Bento Grid */}
