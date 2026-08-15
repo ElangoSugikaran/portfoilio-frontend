@@ -1,6 +1,7 @@
 import { Hero } from "@/sections/Hero"
 import { About } from "@/sections/About"
 import { Experience } from "@/sections/Experience"
+import { Skills } from "@/sections/Skills"
 import { Projects } from "@/sections/Projects"
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
       <About />
       <Experience />
       <Projects />
+      <Skills />
       {/* Other sections like Contact, etc. will go here later */}
     </div>
   )

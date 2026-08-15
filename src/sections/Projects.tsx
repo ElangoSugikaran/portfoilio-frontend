@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ExternalLink, ArrowRight } from 'lucide-react'
+import { ExternalLink, ArrowRight, Code2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -168,13 +168,19 @@ export function Projects() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col gap-6"
+            className="flex flex-col items-start gap-4 md:gap-6"
           >
-            <div className="flex items-center gap-6">
-              <div className="w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0" />
-              <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-                Featured <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">Work</span>
-              </h2>
+            <div className="flex items-start gap-4 md:gap-6 w-full">
+              <div className="w-12 md:w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0 mt-6 md:mt-8" />
+              <div className="flex flex-col gap-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest w-fit">
+                  <Code2 className="w-3.5 h-3.5" />
+                  Portfolio
+                </div>
+                <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
+                  Featured <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">Work</span>
+                </h2>
+              </div>
             </div>
             <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-xl md:ml-22">
               A curated selection of engineering projects focused on scalability, performance, and refined user experience.
