@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { MapPin, Code2, Rocket, Sparkles, User } from 'lucide-react'
 import { useRef } from 'react'
+import { SectionHeading } from '@/components/ui/SectionHeading'
 
 const GridBackground = () => (
   <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
@@ -33,34 +34,22 @@ export function About() {
   const imageY = useTransform(scrollYProgress, [0, 1], [15, -15])
 
   return (
-    <section ref={containerRef} id="about" className="relative py-32 px-6 md:px-12 lg:px-24 bg-background overflow-hidden scroll-margin-top">
+    <section ref={containerRef} id="about" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 bg-background overflow-hidden scroll-margin-top">
       {/* Restored Animated Grid Background */}
       <GridBackground />
 
-      {/* Deep Glowing Orbs for Glassmorphism Refraction */}
-      <div className="absolute top-0 right-1/4 w-150 h-150 bg-primary/20 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-      <div className="absolute bottom-0 left-1/4 w-125 h-125 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+      {/* Subtle Background Gradients */}
+      <div className="absolute top-0 right-0 w-150 h-150 bg-primary/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+      <div className="absolute bottom-0 left-0 w-125 h-125 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
 
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-16">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex items-start gap-4 md:gap-6"
-        >
-          <div className="w-12 md:w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0 mt-6 md:mt-8" />
-          <div className="flex flex-col gap-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest w-fit">
-              <User className="w-3.5 h-3.5" />
-              Introduction
-            </div>
-            <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-              About <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-400">Me</span>
-            </h2>
-          </div>
-        </motion.div>
+        <SectionHeading
+          icon={User}
+          pillText="Introduction"
+          title="About"
+          highlight="Me."
+          subtitle="An overview of my background, engineering philosophy, and what drives me as a developer."
+        />
 
         {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 auto-rows-[minmax(180px,auto)]">

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Briefcase, Calendar, ChevronRight, ExternalLink } from 'lucide-react'
+import { SectionHeading } from '@/components/ui/SectionHeading'
 
 const experiences = [
   {
@@ -42,30 +43,13 @@ export function Experience() {
       {/* Main Container - Matches About Section Width */}
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-12 md:gap-16">
 
-        {/* Section Header - Improved Mobile Centering & Responsiveness */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-start gap-4 md:gap-6"
-        >
-          <div className="flex items-start gap-4 md:gap-6 w-full">
-            <div className="w-12 md:w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0 mt-6 md:mt-8" />
-            <div className="flex flex-col gap-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest w-fit">
-                <Briefcase className="w-3.5 h-3.5" />
-                Career Journey
-              </div>
-              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-                My <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">Experience</span>
-              </h2>
-            </div>
-          </div>
-          <p className="text-muted-foreground text-base sm:text-lg md:text-xl leading-relaxed max-w-2xl ml-0 md:ml-22">
-            A timeline of my professional journey, building scalable software and delivering seamless digital experiences.
-          </p>
-        </motion.div>
+        <SectionHeading
+          icon={Briefcase}
+          pillText="Career Journey"
+          title="My"
+          highlight="Experience."
+          subtitle="A timeline of my professional journey, building scalable software and delivering seamless digital experiences."
+        />
 
         {/* Vertical Timeline with Logo Bubbles & Glass Cards */}
         <div className="relative w-full md:ml-22 max-w-4xl mt-4 md:mt-8">

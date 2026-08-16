@@ -80,106 +80,76 @@ const SPECIALTIES = [
   }
 ]
 
+import { 
+  Html5, Css3, Javascript, Typescript, _React, Vite, Nextjs, Tailwind, Bootstrap, Sass,
+  Nodejs, Express, Fastify, Php, Laravel, Mysql, Mongodb, Postgresql, Firebase, Graphql,
+  Git, Github, GithubActions, Docker, Aws, LinuxTux, Vercel, Netlify, Figma, VisualStudioCode, Postman
+} from '@dev.icons/react'
+
 const FRONTEND_TECHS = [
-  { name: 'HTML5', icon: 'devicon-html5-plain' },
-  { name: 'CSS3', icon: 'devicon-css3-plain' },
-  { name: 'JavaScript', icon: 'devicon-javascript-plain' },
-  { name: 'TypeScript', icon: 'devicon-typescript-plain' },
-  { name: 'React', icon: 'devicon-react-original' },
-  { name: 'Vite', icon: 'devicon-vite-original' },
-  { name: 'Next.js', icon: 'devicon-nextjs-plain' },
-  { name: 'Tailwind', icon: 'devicon-tailwindcss-plain' },
-  { name: 'Bootstrap', icon: 'devicon-bootstrap-plain' },
-  { name: 'Sass', icon: 'devicon-sass-original' },
+  { name: 'HTML5', component: Html5 },
+  { name: 'CSS3', component: Css3 },
+  { name: 'JavaScript', component: Javascript },
+  { name: 'TypeScript', component: Typescript },
+  { name: 'React', component: _React },
+  { name: 'Vite', component: Vite },
+  { name: 'Next.js', component: Nextjs },
+  { name: 'Tailwind', component: Tailwind },
+  { name: 'Bootstrap', component: Bootstrap },
+  { name: 'Sass', component: Sass },
 ]
 
 const BACKEND_TECHS = [
-  { name: 'Node.js', icon: 'devicon-nodejs-plain' },
-  { name: 'Express', icon: 'devicon-express-original' },
-  { name: 'Fastify', icon: 'devicon-fastify-plain' },
-  { name: 'PHP', icon: 'devicon-php-plain' },
-  { name: 'Laravel', icon: 'devicon-laravel-plain' },
-  { name: 'MySQL', icon: 'devicon-mysql-plain' },
-  { name: 'MongoDB', icon: 'devicon-mongodb-plain' },
-  { name: 'MSSQL', icon: 'devicon-microsoftsqlserver-plain' },
-  { name: 'PostgreSQL', icon: 'devicon-postgresql-plain' },
-  { name: 'Firebase', icon: 'devicon-firebase-plain' },
-  { name: 'GraphQL', icon: 'devicon-graphql-plain' },
-  { name: 'REST API', lucideIcon: Globe },
+  { name: 'Node.js', component: Nodejs },
+  { name: 'Express', component: Express },
+  { name: 'Fastify', component: Fastify },
+  { name: 'PHP', component: Php },
+  { name: 'Laravel', component: Laravel },
+  { name: 'MySQL', component: Mysql },
+  { name: 'MongoDB', component: Mongodb },
+  { name: 'MSSQL', component: Database },
+  { name: 'PostgreSQL', component: Postgresql },
+  { name: 'Firebase', component: Firebase },
+  { name: 'GraphQL', component: Graphql },
+  { name: 'REST API', component: Globe },
 ]
 
 const TOOLS_TECHS = [
-  { name: 'Git', icon: 'devicon-git-plain' },
-  { name: 'GitHub', icon: 'devicon-github-original' },
-  { name: 'GitHub Actions', icon: 'devicon-githubactions-plain' },
-  { name: 'Docker', icon: 'devicon-docker-plain' },
-  { name: 'AWS', icon: 'devicon-amazonwebservices-plain-wordmark' },
-  { name: 'Linux', icon: 'devicon-linux-plain' },
-  { name: 'Vercel', icon: 'devicon-vercel-plain' },
-  { name: 'Netlify', icon: 'devicon-netlify-plain' },
-  { name: 'Clerk', lucideIcon: Lock },
-  { name: 'Figma', icon: 'devicon-figma-plain' },
-  { name: 'VS Code', icon: 'devicon-vscode-plain' },
-  { name: 'Antigravity', lucideIcon: Rocket },
-  { name: 'Postman', icon: 'devicon-postman-plain' }
+  { name: 'Git', component: Git },
+  { name: 'GitHub', component: Github },
+  { name: 'GitHub Actions', component: GithubActions },
+  { name: 'Docker', component: Docker },
+  { name: 'AWS', component: Aws },
+  { name: 'Linux', component: LinuxTux },
+  { name: 'Vercel', component: Vercel },
+  { name: 'Netlify', component: Netlify },
+  { name: 'Clerk', component: Lock },
+  { name: 'Figma', component: Figma },
+  { name: 'VS Code', component: VisualStudioCode },
+  { name: 'Antigravity', component: Rocket },
+  { name: 'Postman', component: Postman }
 ]
 
-export type TechItem = {
-  name: string;
-  icon?: string;
-  lucideIcon?: React.ElementType;
-};
-
-const TechIcon = ({ tech }: { tech: TechItem }) => (
-  <div className="flex flex-col items-center gap-4 group cursor-default w-28">
-    <div className="relative flex items-center justify-center w-16 h-16">
-      <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      {tech.lucideIcon ? (
-        <tech.lucideIcon className="relative z-10 w-12 h-12 text-muted-foreground group-hover:text-primary transition-colors duration-300 drop-shadow-sm" />
-      ) : (
-        <i className={`${tech.icon} relative z-10 text-5xl sm:text-6xl text-muted-foreground group-hover:text-primary transition-colors duration-300 drop-shadow-sm`} />
-      )}
-    </div>
-    <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60 group-hover:text-foreground transition-colors duration-300 whitespace-nowrap">
-      {tech.name}
-    </span>
-  </div>
-)
+import { TechIcon } from '@/components/ui/TechIcon'
+import { SectionHeading } from '@/components/ui/SectionHeading'
 
 export function Skills() {
   return (
-    <section id="skills" className="relative pt-12 pb-32 overflow-hidden scroll-margin-top">
+    <section id="skills" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden scroll-margin-top">
       <GlowingBackground />
       
       {/* Subtle Background Gradients to match other sections */}
       <div className="absolute top-1/4 -right-1/4 w-100 h-100 bg-primary/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
       <div className="absolute bottom-1/4 -left-1/4 w-125 h-125 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 md:px-12 lg:px-24">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-start gap-4 md:gap-6 mb-16 md:mb-20"
-        >
-          <div className="flex items-start gap-4 md:gap-6 w-full">
-            <div className="w-12 md:w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0 mt-6 md:mt-8" />
-            <div className="flex flex-col gap-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest w-fit">
-                <Cpu className="w-3.5 h-3.5" />
-                Domain Expertise
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-                Full-Stack <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">Toolkit.</span>
-              </h2>
-            </div>
-          </div>
-          <p className="text-muted-foreground text-lg max-w-2xl ml-0 md:ml-22 leading-relaxed">
-            Bridging the gap between conceptual design and robust engineering through a comprehensive technical stack.
-          </p>
-        </motion.div>
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <SectionHeading
+          icon={Cpu}
+          pillText="Domain Expertise"
+          title="Full-Stack"
+          highlight="Toolkit."
+          subtitle="Bridging the gap between conceptual design and robust engineering through a comprehensive technical stack."
+        />
 
         {/* Specialties Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-32">
@@ -231,7 +201,11 @@ export function Skills() {
               scaleOnHover={true}
               fadeOut={true}
               fadeOutColor="hsl(var(--background))"
-              renderItem={(tech) => <TechIcon tech={tech as TechItem} />}
+              renderItem={(tech) => (
+                <div className="w-28 flex justify-center">
+                  <TechIcon size="xl" showLabel {...(tech as any)} />
+                </div>
+              )}
             />
 
             <LogoLoop
@@ -243,7 +217,11 @@ export function Skills() {
               scaleOnHover={true}
               fadeOut={true}
               fadeOutColor="hsl(var(--background))"
-              renderItem={(tech) => <TechIcon tech={tech as TechItem} />}
+              renderItem={(tech) => (
+                <div className="w-28 flex justify-center">
+                  <TechIcon size="xl" showLabel {...(tech as any)} />
+                </div>
+              )}
             />
 
             <LogoLoop
@@ -255,7 +233,11 @@ export function Skills() {
               scaleOnHover={true}
               fadeOut={true}
               fadeOutColor="hsl(var(--background))"
-              renderItem={(tech) => <TechIcon tech={tech as TechItem} />}
+              renderItem={(tech) => (
+                <div className="w-28 flex justify-center">
+                  <TechIcon size="xl" showLabel {...(tech as any)} />
+                </div>
+              )}
             />
           </div>
         </motion.div>
