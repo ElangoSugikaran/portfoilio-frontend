@@ -4,6 +4,7 @@ import { Experience } from "@/sections/Experience"
 import { Education } from "@/sections/Education"
 import { Skills } from "@/sections/Skills"
 import { Projects } from "@/sections/Projects"
+import { Certifications } from "@/sections/Certifications"
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Projects />
       <Skills />
       <Education />
+      <Certifications />
       {/* Other sections like Contact, etc. will go here later */}
     </div>
   )
