@@ -5,6 +5,7 @@ import { Education } from "@/sections/Education"
 import { Skills } from "@/sections/Skills"
 import { Projects } from "@/sections/Projects"
 import { Certifications } from "@/sections/Certifications"
+import { Contact } from "@/sections/Contact"
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
       <Skills />
       <Education />
       <Certifications />
-      {/* Other sections like Contact, etc. will go here later */}
+      <Contact />
     </div>
   )
 }
