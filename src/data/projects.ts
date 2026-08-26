@@ -1,16 +1,21 @@
-export const TECH_ICONS: Record<string, string> = {
-  'PHP': 'devicon-php-plain',
-  'MySQL': 'devicon-mysql-plain',
-  'JavaScript': 'devicon-javascript-plain',
-  'Bootstrap': 'devicon-bootstrap-plain',
-  'React': 'devicon-react-original',
-  'Node.js': 'devicon-nodejs-plain',
-  'MongoDB': 'devicon-mongodb-plain',
-  'Express.js': 'devicon-express-original',
-  'Next.js': 'devicon-nextjs-plain',
-  'Tailwind CSS': 'devicon-tailwindcss-plain',
-  'Framer Motion': 'devicon-framer-original',
-  'TypeScript': 'devicon-typescript-plain',
+import { ElementType } from 'react';
+import { 
+  Php, Mysql, Javascript, Bootstrap, _React, Nodejs, Mongodb, Express, Nextjs, Tailwind, Framer, Typescript
+} from '@dev.icons/react';
+
+export const TECH_ICONS: Record<string, ElementType> = {
+  'PHP': Php,
+  'MySQL': Mysql,
+  'JavaScript': Javascript,
+  'Bootstrap': Bootstrap,
+  'React': _React,
+  'Node.js': Nodejs,
+  'MongoDB': Mongodb,
+  'Express.js': Express,
+  'Next.js': Nextjs,
+  'Tailwind CSS': Tailwind,
+  'Framer Motion': Framer,
+  'TypeScript': Typescript,
 };
 
 export interface Project {

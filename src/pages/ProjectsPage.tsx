@@ -45,8 +45,11 @@ const ArchiveProjectCard = ({ project, index }: { project: Project, index: numbe
               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
             </div>
 
-            <div className="text-primary opacity-20 group-hover:opacity-40 transition-all duration-500 group-hover:scale-110">
-              <i className={cn(TECH_ICONS[project.tech[0]] || 'devicon-javascript-plain', "text-6xl")} />
+            <div className="w-full h-full opacity-20 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+              {(() => {
+                const TechComp = TECH_ICONS[project.tech[0]];
+                return TechComp ? <TechComp className="w-24 h-24" /> : null;
+              })()}
             </div>
 
             <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -77,12 +80,17 @@ const ArchiveProjectCard = ({ project, index }: { project: Project, index: numbe
 
           {/* Tech Stack Icons */}
           <div className="flex flex-wrap gap-x-4 gap-y-3 mb-6">
-            {project.tech.map((t) => (
-              <div key={t} className="flex items-center gap-2 group/icon transition-colors duration-200">
-                <i className={cn(TECH_ICONS[t] || 'devicon-javascript-plain', "text-lg text-muted-foreground group-hover/icon:text-primary transition-colors")} />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover/icon:text-foreground transition-colors">{t}</span>
-              </div>
-            ))}
+            {project.tech.map((t) => {
+              const TechComp = TECH_ICONS[t];
+              return (
+                <div key={t} className="flex items-center gap-2 group/icon transition-colors duration-200">
+                  {TechComp ? (
+                    <TechComp className="text-lg text-muted-foreground group-hover/icon:text-primary transition-colors w-5 h-5" />
+                  ) : null}
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-hover/icon:text-foreground transition-colors">{t}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
 

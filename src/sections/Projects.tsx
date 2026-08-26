@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { SectionHeading } from '@/components/ui/SectionHeading'
 import { ExternalLink, ArrowRight, Code2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -63,8 +64,11 @@ const ProjectCard = ({ project }: { project: typeof projects[0] }) => {
               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30" />
             </div>
 
-            <div className="text-primary opacity-20 group-hover:opacity-40 transition-all duration-500 group-hover:scale-110">
-              <i className={cn(TECH_ICONS[project.tech[0]] || 'devicon-javascript-plain', "text-7xl")} />
+            <div className="w-full h-full opacity-20 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+              {(() => {
+                const TechComp = TECH_ICONS[project.tech[0]];
+                return TechComp ? <TechComp className="w-32 h-32" /> : null;
+              })()}
             </div>
 
             <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -95,19 +99,24 @@ const ProjectCard = ({ project }: { project: typeof projects[0] }) => {
 
           {/* Tech Stack Icons with Staggered Animation */}
           <div className="flex flex-wrap gap-x-5 gap-y-4 mb-9">
-            {project.tech.map((t, index) => (
-              <motion.div 
-                key={t} 
-                initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
-                viewport={{ once: true }}
-                className="flex items-center gap-2 group/icon transition-colors duration-200"
-              >
-                <i className={cn(TECH_ICONS[t] || 'devicon-javascript-plain', "text-lg md:text-xl text-muted-foreground group-hover/icon:text-primary transition-colors")} />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground group-hover/icon:text-foreground transition-colors">{t}</span>
-              </motion.div>
-            ))}
+            {project.tech.map((t, index) => {
+              const TechComp = TECH_ICONS[t];
+              return (
+                <motion.div 
+                  key={t} 
+                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.1 + index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="flex items-center gap-2 group/icon transition-colors duration-200"
+                >
+                  {TechComp ? (
+                    <TechComp className="text-lg md:text-xl text-muted-foreground group-hover/icon:text-primary transition-colors w-5 h-5 md:w-6 md:h-6" />
+                  ) : null}
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground group-hover/icon:text-foreground transition-colors">{t}</span>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 
@@ -161,47 +170,20 @@ export function Projects() {
       <div className="absolute bottom-0 left-0 w-125 h-125 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
 
       <div className="relative z-10 max-w-6xl mx-auto">
-        {/* Section Heading - Perfectly aligned with About & Experience */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 md:mb-20">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col items-start gap-4 md:gap-6"
-          >
-            <div className="flex items-start gap-4 md:gap-6 w-full">
-              <div className="w-12 md:w-16 h-0.5 bg-linear-to-r from-primary to-transparent shrink-0 mt-6 md:mt-8" />
-              <div className="flex flex-col gap-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-bold uppercase tracking-widest w-fit">
-                  <Code2 className="w-3.5 h-3.5" />
-                  Portfolio
-                </div>
-                <h2 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase">
-                  Featured <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-blue-500">Work</span>
-                </h2>
-              </div>
-            </div>
-            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-xl md:ml-22">
-              A curated selection of engineering projects focused on scalability, performance, and refined user experience.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            viewport={{ once: true }}
-            className="md:ml-22"
-          >
-            <Link to="/projects">
-              <Button variant="link" className="text-primary font-bold text-lg p-0 group h-auto">
-                Explore Full Archive
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
+        <SectionHeading
+          icon={Code2}
+          pillText="Portfolio"
+          title="Featured"
+          highlight="Work."
+          subtitle="A curated selection of engineering projects focused on scalability, performance, and refined user experience."
+        >
+          <Link to="/projects">
+            <Button variant="link" className="text-primary font-bold text-lg p-0 group h-auto">
+              Explore Full Archive
+              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-2 transition-transform duration-300" />
+            </Button>
+          </Link>
+        </SectionHeading>
 
         {/* Projects Grid - Native CSS Sticky Stack */}
         <div className="flex flex-col gap-16 lg:gap-24 pb-12 md:pb-24 relative">
