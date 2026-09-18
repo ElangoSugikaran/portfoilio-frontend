@@ -21,7 +21,14 @@
   },
   "menuColor": "default",
   "menuAccent": "subtle",
-  "registries": {
-    "@animate-ui": "https://animate-ui.com/r/{name}.json"
-  }
+  "registries": [
+    "https://animate-ui.com/r",
+    {
+      "name": "reactbits-pro",
+      "url": "https://pro.reactbits.dev/r",
+      "headers": {
+        "Authorization": "Bearer ${REACTBITS_LICENSE_KEY}"
+      }
+    }
+  ]
 }
