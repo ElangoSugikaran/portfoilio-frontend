@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useSendMessage } from '@/hooks/api/useMessages'
 import { Mail, MapPin, Phone, Send, MessageSquare } from 'lucide-react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Button } from '@/components/ui/button'
@@ -102,6 +104,33 @@ const SocialLink = ({ icon: Icon, href, label, delay }: { icon: React.ElementTyp
 )
 
 export function Contact() {
+  const [statusMessage, setStatusMessage] = useState("")
+  const { mutate: sendMessage, isPending: isSubmitting } = useSendMessage()
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setStatusMessage("")
+    
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      body: formData.get('message') as string,
+    }
+    
+    const formElement = e.target as HTMLFormElement
+    
+    sendMessage(data, {
+      onSuccess: () => {
+        setStatusMessage("Message sent successfully!")
+        formElement.reset()
+      },
+      onError: () => {
+        setStatusMessage("Failed to send message. Please try again.")
+      }
+    })
+  }
+
   return (
     <section id="contact" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden scroll-margin-top border-t border-border/30">
       <GridBackground />
@@ -169,11 +198,13 @@ export function Contact() {
 
             <h3 className="text-2xl font-bold tracking-tight text-foreground mb-6 relative z-10">Send a Message</h3>
             
-            <form className="space-y-6 relative z-10" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-muted-foreground font-medium">Your Name</Label>
                 <Input 
                   id="name" 
+                  name="name"
+                  required
                   placeholder="John Doe" 
                   className="bg-background/50 border-border focus-visible:ring-primary/20 focus-visible:border-primary h-12 rounded-xl"
                 />
@@ -183,7 +214,9 @@ export function Contact() {
                 <Label htmlFor="email" className="text-muted-foreground font-medium">Email Address</Label>
                 <Input 
                   id="email" 
+                  name="email"
                   type="email"
+                  required
                   placeholder="john@example.com" 
                   className="bg-background/50 border-border focus-visible:ring-primary/20 focus-visible:border-primary h-12 rounded-xl"
                 />
@@ -193,15 +226,21 @@ export function Contact() {
                 <Label htmlFor="message" className="text-muted-foreground font-medium">Message</Label>
                 <Textarea 
                   id="message" 
+                  name="message"
+                  required
                   placeholder="How can I help you?" 
                   className="bg-background/50 border-border focus-visible:ring-primary/20 focus-visible:border-primary min-h-30 resize-y rounded-xl"
                 />
               </div>
 
-              <Button type="submit" className="w-full h-12 rounded-xl font-bold gap-2 text-sm">
-                Send Message
+              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold gap-2 text-sm">
+                {isSubmitting ? "Sending..." : "Send Message"}
                 <Send className="w-4 h-4" />
               </Button>
+
+              {statusMessage && (
+                <p className="text-sm mt-2 text-center text-muted-foreground">{statusMessage}</p>
+              )}
             </form>
           </motion.div>
         </div>
