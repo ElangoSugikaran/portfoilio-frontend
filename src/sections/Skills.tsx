@@ -1,8 +1,18 @@
-'use client'
-
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Monitor, Server, Database, GitBranch, Smartphone, Palette, Cpu, Globe, Rocket, Lock } from 'lucide-react'
-import { LogoLoop } from '@/components/ui/LogoLoop'
+import { Monitor, Server, Database, GitBranch, Smartphone, Palette, Cpu } from 'lucide-react'
+import { LogoLoop, type LogoItem } from '@/components/ui/LogoLoop'
+import { TechIcon } from '@/components/ui/TechIcon'
+import { SectionHeading } from '@/components/ui/SectionHeading'
+import { useSkills } from '@/hooks/api/useSkills'
+import { getTechComponent } from '@/lib/tech-icons'
+import { QueryState } from '@/components/common/QueryState'
+import type { ApiSkill } from '@/types/api'
+
+interface TypedLogoItem extends LogoItem {
+  name: string;
+  component: React.ElementType;
+}
 
 const GlowingBackground = () => (
   <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
@@ -53,7 +63,7 @@ const SPECIALTIES = [
   {
     icon: Database,
     title: 'Database Management',
-    desc: 'Proficient in relational and NoSQL databases like MySQL, MongoDB, and MSSQL. Designing optimized schemas for data integrity.',
+    desc: 'Proficient in relational and NoSQL databases like MySQL, MongoDB, and PostgreSQL. Designing optimized schemas for data integrity.',
     color: 'text-primary',
     bg: 'bg-primary/10'
   },
@@ -80,62 +90,46 @@ const SPECIALTIES = [
   }
 ]
 
-import { 
-  Html5, Css3, Javascript, Typescript, _React, Vite, Nextjs, Tailwind, Bootstrap, Sass,
-  Nodejs, Express, Fastify, Php, Laravel, Mysql, Mongodb, Postgresql, Firebase, Graphql,
-  Git, Github, GithubActions, Docker, Aws, LinuxTux, Vercel, Netlify, Figma, VisualStudioCode, Postman
-} from '@dev.icons/react'
-
-const FRONTEND_TECHS = [
-  { name: 'HTML5', component: Html5 },
-  { name: 'CSS3', component: Css3 },
-  { name: 'JavaScript', component: Javascript },
-  { name: 'TypeScript', component: Typescript },
-  { name: 'React', component: _React },
-  { name: 'Vite', component: Vite },
-  { name: 'Next.js', component: Nextjs },
-  { name: 'Tailwind', component: Tailwind },
-  { name: 'Bootstrap', component: Bootstrap },
-  { name: 'Sass', component: Sass },
-]
-
-const BACKEND_TECHS = [
-  { name: 'Node.js', component: Nodejs },
-  { name: 'Express', component: Express },
-  { name: 'Fastify', component: Fastify },
-  { name: 'PHP', component: Php },
-  { name: 'Laravel', component: Laravel },
-  { name: 'MySQL', component: Mysql },
-  { name: 'MongoDB', component: Mongodb },
-  { name: 'MSSQL', component: Database },
-  { name: 'PostgreSQL', component: Postgresql },
-  { name: 'Firebase', component: Firebase },
-  { name: 'GraphQL', component: Graphql },
-  { name: 'REST API', component: Globe },
-]
-
-const TOOLS_TECHS = [
-  { name: 'Git', component: Git },
-  { name: 'GitHub', component: Github },
-  { name: 'GitHub Actions', component: GithubActions },
-  { name: 'Docker', component: Docker },
-  { name: 'AWS', component: Aws },
-  { name: 'Linux', component: LinuxTux },
-  { name: 'Vercel', component: Vercel },
-  { name: 'Netlify', component: Netlify },
-  { name: 'Clerk', component: Lock },
-  { name: 'Figma', component: Figma },
-  { name: 'VS Code', component: VisualStudioCode },
-  { name: 'Antigravity', component: Rocket },
-  { name: 'Postman', component: Postman }
-]
-
-import { TechIcon } from '@/components/ui/TechIcon'
-import { SectionHeading } from '@/components/ui/SectionHeading'
-
 export function Skills() {
+  const { data: skills = [], isLoading, isError, error, refetch } = useSkills();
+
+  // Categorize live skills dynamically from backend
+  const { frontendTechs, backendTechs, toolsTechs } = useMemo(() => {
+    if (!skills || skills.length === 0) {
+      return { frontendTechs: [], backendTechs: [], toolsTechs: [] };
+    }
+
+    const frontendCategories = ['FRONTEND', 'CSS_FRAMEWORK'];
+    const backendCategories = ['BACKEND', 'DATABASE'];
+    const toolCategories = ['TOOL', 'SERVICE', 'DESIGN_TOOL'];
+
+    const frontend = skills.filter((s: ApiSkill) => 
+      frontendCategories.includes(s.category) || (s.category === 'FRAMEWORK' && ['React', 'Next.js', 'Vite'].includes(s.name))
+    );
+
+    const backend = skills.filter((s: ApiSkill) => 
+      backendCategories.includes(s.category) || (s.category === 'FRAMEWORK' && ['Laravel', 'Express', 'Fastify', 'NestJS'].includes(s.name))
+    );
+
+    const tools = skills.filter((s: ApiSkill) => 
+      toolCategories.includes(s.category) || (!frontendCategories.includes(s.category) && !backendCategories.includes(s.category) && s.category !== 'FRAMEWORK')
+    );
+
+    const toLogoItem = (s: ApiSkill): TypedLogoItem => ({
+      title: s.name,
+      name: s.name,
+      component: getTechComponent(s.name, s.icon)
+    });
+
+    return {
+      frontendTechs: frontend.map(toLogoItem),
+      backendTechs: backend.map(toLogoItem),
+      toolsTechs: tools.map(toLogoItem)
+    };
+  }, [skills]);
+
   return (
-    <section id="skills" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden scroll-margin-top">
+    <section id="skills" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden">
       <GlowingBackground />
       
       {/* Subtle Background Gradients to match other sections */}
@@ -191,58 +185,86 @@ export function Skills() {
             Powering my Daily Workflow
           </h4>
 
-          <div className="flex flex-col gap-12 w-full max-w-[100vw] overflow-hidden">
-            <LogoLoop
-              logos={FRONTEND_TECHS}
-              speed={40}
-              direction="left"
-              gap={48}
-              hoverSpeed={10}
-              scaleOnHover={true}
-              fadeOut={true}
-              fadeOutColor="hsl(var(--background))"
-              renderItem={(tech) => (
-                <div className="w-28 flex justify-center">
-                  <TechIcon size="xl" showLabel {...(tech as any)} />
-                </div>
+          <QueryState
+            isLoading={isLoading}
+            isError={isError}
+            error={error}
+            data={skills}
+            onRetry={() => refetch()}
+            loadingComponent={
+              <div className="flex flex-col gap-8 max-w-4xl mx-auto py-8">
+                <div className="h-16 w-full rounded-2xl bg-muted/30 animate-pulse" />
+                <div className="h-16 w-full rounded-2xl bg-muted/30 animate-pulse" />
+              </div>
+            }
+          >
+            <div className="flex flex-col gap-12 w-full max-w-[100vw] overflow-hidden">
+              {frontendTechs.length > 0 && (
+                <LogoLoop
+                  logos={frontendTechs}
+                  speed={40}
+                  direction="left"
+                  gap={48}
+                  hoverSpeed={10}
+                  scaleOnHover={true}
+                  fadeOut={true}
+                  fadeOutColor="var(--background)"
+                  renderItem={(item) => {
+                    const tech = item as TypedLogoItem;
+                    return (
+                      <div className="w-28 flex justify-center">
+                        <TechIcon size="xl" showLabel name={tech.name} component={tech.component} />
+                      </div>
+                    );
+                  }}
+                />
               )}
-            />
 
-            <LogoLoop
-              logos={BACKEND_TECHS}
-              speed={40}
-              direction="right"
-              gap={48}
-              hoverSpeed={10}
-              scaleOnHover={true}
-              fadeOut={true}
-              fadeOutColor="hsl(var(--background))"
-              renderItem={(tech) => (
-                <div className="w-28 flex justify-center">
-                  <TechIcon size="xl" showLabel {...(tech as any)} />
-                </div>
+              {backendTechs.length > 0 && (
+                <LogoLoop
+                  logos={backendTechs}
+                  speed={40}
+                  direction="right"
+                  gap={48}
+                  hoverSpeed={10}
+                  scaleOnHover={true}
+                  fadeOut={true}
+                  fadeOutColor="var(--background)"
+                  renderItem={(item) => {
+                    const tech = item as TypedLogoItem;
+                    return (
+                      <div className="w-28 flex justify-center">
+                        <TechIcon size="xl" showLabel name={tech.name} component={tech.component} />
+                      </div>
+                    );
+                  }}
+                />
               )}
-            />
 
-            <LogoLoop
-              logos={TOOLS_TECHS}
-              speed={40}
-              direction="left"
-              gap={48}
-              hoverSpeed={10}
-              scaleOnHover={true}
-              fadeOut={true}
-              fadeOutColor="hsl(var(--background))"
-              renderItem={(tech) => (
-                <div className="w-28 flex justify-center">
-                  <TechIcon size="xl" showLabel {...(tech as any)} />
-                </div>
+              {toolsTechs.length > 0 && (
+                <LogoLoop
+                  logos={toolsTechs}
+                  speed={40}
+                  direction="left"
+                  gap={48}
+                  hoverSpeed={10}
+                  scaleOnHover={true}
+                  fadeOut={true}
+                  fadeOutColor="var(--background)"
+                  renderItem={(item) => {
+                    const tech = item as TypedLogoItem;
+                    return (
+                      <div className="w-28 flex justify-center">
+                        <TechIcon size="xl" showLabel name={tech.name} component={tech.component} />
+                      </div>
+                    );
+                  }}
+                />
               )}
-            />
-          </div>
+            </div>
+          </QueryState>
         </motion.div>
       </div>
     </section>
   )
 }
-

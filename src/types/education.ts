@@ -1,4 +1,4 @@
-import { GraduationCap, Award, BookOpen } from 'lucide-react'
+import { GraduationCap, Award, BookOpen, type LucideIcon } from 'lucide-react'
 
 export interface EducationItem {
   id: number;
@@ -9,7 +9,7 @@ export interface EducationItem {
   location: string;
   description: string;
   skills: string[];
-  icon: any; // Lucide icon
+  icon: LucideIcon;
   award?: string;
 }
 

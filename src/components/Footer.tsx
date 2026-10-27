@@ -1,5 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { Mail } from 'lucide-react'
+import { Mail, MapPin, Phone } from 'lucide-react'
+import { useSettings } from '@/hooks/api/useSettings'
+import { useAbout } from '@/hooks/api/useAbout'
+import { NAV_LINKS } from '@/lib/constants'
+import { scrollToAnchor, scrollToTop } from '@/lib/scroll'
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -19,27 +23,58 @@ function LinkedinIcon({ className }: { className?: string }) {
     </svg>
   )
 }
-import { NAV_LINKS } from '@/lib/constants'
 
 export default function Footer() {
   const navigate = useNavigate()
+  const { data: about } = useAbout()
+  const { data: settings } = useSettings()
   const currentYear = new Date().getFullYear()
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const fullName = about?.fullName || settings?.ownerName || 'Elango Sugikaran'
+  const nameParts = fullName.trim().split(' ')
+  const firstName = nameParts[0] || 'Sugikaran'
+  const roleTitle = about?.title || settings?.roles?.[0] || 'Full Stack Developer'
+  const heroDescription = about?.tagline || settings?.heroIntro || 'Building high-performance digital experiences with modern web technologies, scalable architectures, and elegant engineering.'
+  const address = about?.location || settings?.address
+  const email = about?.email || settings?.email
+  const phone = about?.phone || settings?.phone
+
+  // Social links from about API (active) or fallback to settings
+  const aboutSocials = (about?.socialLinks || [])
+    .filter(l => l.active && l.url)
+    .map(l => ({ id: l.id, platform: l.platform, url: l.url, isVisible: true }))
+
+  const settingsSocials = settings?.socialLinks?.filter(l => l.isVisible && l.url) || []
+  const visibleSocials = aboutSocials.length > 0 ? aboutSocials : settingsSocials
+
+  const handleScrollToTop = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
+    e.preventDefault()
+    if (window.location.pathname !== '/' && window.location.pathname !== '/home') {
+      navigate('/')
+      return
+    }
+    window.history.pushState(null, '', window.location.pathname)
+    scrollToTop()
   }
 
-  const handleLinkClick = (href: string) => {
-    if (href.startsWith('/')) {
-      navigate(href)
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
       return
     }
     
-    const sectionId = href.slice(1)
-    const el = document.getElementById(sectionId)
-    if (el) {
-      window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 88, behavior: 'smooth' })
+    if (href.startsWith('/')) {
+      return
     }
+
+    e.preventDefault()
+    if (window.location.pathname !== '/' && window.location.pathname !== '/home') {
+      navigate(`/${href}`)
+      return
+    }
+    
+    window.history.pushState(null, '', href)
+    scrollToAnchor(href)
   }
 
   return (
@@ -53,44 +88,84 @@ export default function Footer() {
             
             {/* Brand Section */}
             <div className="space-y-6 xl:col-span-1">
-              <button
-                onClick={scrollToTop}
+              <a
+                href="#hero"
+                onClick={handleScrollToTop}
                 aria-label="Go to top"
-                className="flex items-center gap-2.5 group shrink-0"
+                className="flex items-center gap-2.5 group shrink-0 cursor-pointer"
               >
                 <div className="w-8 h-8 shrink-0 rounded-xl bg-foreground text-background flex items-center justify-center font-black text-xs transition-all duration-300 group-hover:bg-primary group-hover:scale-105">
-                  S
+                  {firstName.charAt(0) || 'S'}
                 </div>
                 <div className="flex flex-col leading-none gap-[3px] text-left">
                   <div className="flex items-baseline leading-none">
                     <span className="font-black text-lg tracking-tight text-foreground group-hover:text-primary transition-colors duration-200">
-                      Sugikaran
+                      {firstName}
                     </span>
                     <span className="font-black text-lg tracking-tight text-primary">
                       .dev
                     </span>
                   </div>
                   <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
-                    Full Stack Developer
+                    {roleTitle}
                   </span>
                 </div>
-              </button>
+              </a>
+
               <p className="text-sm leading-6 text-muted-foreground max-w-sm">
-                Building digital experiences with modern web technologies. Focused on creating elegant, efficient, and user-centric solutions.
+                {heroDescription}
               </p>
-              <div className="flex gap-x-2">
-                <a href="https://github.com/ElangoSugikaran" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors group p-2 -ml-2 rounded-lg hover:bg-muted">
-                  <span className="sr-only">GitHub</span>
-                  <GithubIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                </a>
-                <a href="https://linkedin.com/" target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground transition-colors group p-2 rounded-lg hover:bg-muted">
-                  <span className="sr-only">LinkedIn</span>
-                  <LinkedinIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                </a>
-                <a href="mailto:contact@sugikaran.dev" className="text-muted-foreground hover:text-foreground transition-colors group p-2 rounded-lg hover:bg-muted">
-                  <span className="sr-only">Email</span>
-                  <Mail className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                </a>
+
+              {/* Location & Address in Footer */}
+              {address && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <MapPin className="h-4 w-4 text-primary shrink-0" />
+                  <span>{address}</span>
+                </div>
+              )}
+
+              {/* Direct Channels */}
+              <div className="flex items-center gap-2 pt-1">
+                {visibleSocials.map((link) => {
+                  const platformLower = link.platform.toLowerCase()
+                  const IconComp = platformLower.includes('github')
+                    ? GithubIcon
+                    : platformLower.includes('linkedin')
+                    ? LinkedinIcon
+                    : Mail
+
+                  return (
+                    <a
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={link.platform}
+                      className="text-muted-foreground hover:text-foreground transition-colors group p-2 rounded-lg hover:bg-muted cursor-pointer"
+                    >
+                      <IconComp className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                    </a>
+                  )
+                })}
+                {email && (
+                  <a
+                    href={`mailto:${email}`}
+                    aria-label="Email"
+                    className="text-muted-foreground hover:text-foreground transition-colors group p-2 rounded-lg hover:bg-muted cursor-pointer"
+                  >
+                    <Mail className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  </a>
+                )}
+                {phone && (
+                  <a
+                    href={`tel:${phone.replace(/[\s-]/g, '')}`}
+                    aria-label="Phone"
+                    className="text-muted-foreground hover:text-foreground transition-colors group p-2 rounded-lg hover:bg-muted cursor-pointer"
+                    title={phone}
+                  >
+                    <Phone className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  </a>
+                )}
               </div>
             </div>
             
@@ -101,12 +176,13 @@ export default function Footer() {
                 <ul role="list" className="grid grid-cols-2 gap-x-8 gap-y-4">
                   {NAV_LINKS.map((link) => (
                     <li key={link.label}>
-                      <button 
-                        onClick={() => handleLinkClick(link.href)}
-                        className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors hover:translate-x-1 transform inline-block duration-200"
+                      <a 
+                        href={link.href}
+                        onClick={(e) => handleLinkClick(e, link.href)}
+                        className="text-sm leading-6 text-muted-foreground hover:text-primary transition-colors hover:translate-x-1 transform inline-block duration-200 cursor-pointer"
                       >
                         {link.label}
-                      </button>
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -117,10 +193,10 @@ export default function Footer() {
           {/* Bottom section */}
           <div className="mt-16 border-t border-border/40 pt-8 sm:mt-20 lg:mt-24 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-xs leading-5 text-muted-foreground">
-              &copy; {currentYear} Sugikaran. All rights reserved.
+              &copy; {currentYear} {fullName}. All rights reserved.
             </p>
             <p className="text-xs leading-5 text-muted-foreground flex items-center gap-1">
-              Designed & Built with <span className="text-destructive animate-pulse">❤️</span> in React
+              Designed & Built with <span className="text-destructive animate-pulse">❤️</span> in React &amp; TypeScript
             </p>
           </div>
         </div>

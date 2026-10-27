@@ -1,9 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 @import "@fontsource-variable/geist";
+@import "lenis/dist/lenis.css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark, .dark *));
 
 @theme inline {
     --font-heading: var(--font-sans);
@@ -120,11 +122,49 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
   html {
     @apply font-sans;
-    }
+  }
+
+  /* Interaction and Cursor Standards (Phase A1) */
+  button:not(:disabled),
+  [role=button]:not([aria-disabled=true]),
+  a[href],
+  summary,
+  label[for],
+  select:not(:disabled),
+  input[type=checkbox]:not(:disabled),
+  input[type=radio]:not(:disabled),
+  input[type=range]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role=button][aria-disabled=true],
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+
+  [aria-busy=true],
+  [data-loading=true],
+  [data-loading] {
+    cursor: progress !important;
+  }
+
+  input[type=text],
+  input[type=email],
+  input[type=search],
+  input[type=password],
+  input[type=tel],
+  input[type=url],
+  input[type=number],
+  textarea {
+    cursor: text;
+  }
 }
