@@ -7,9 +7,12 @@ import { Projects } from "@/sections/Projects"
 import { Certifications } from "@/sections/Certifications"
 import { Contact } from "@/sections/Contact"
 
+import { SEO } from "@/components/common/SEO"
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
+      <SEO />
       <Hero />
       <About />
       <Experience />

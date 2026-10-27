@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSendMessage } from '@/hooks/api/useMessages'
+import { useSettings } from '@/hooks/api/useSettings'
+import { useAbout } from '@/hooks/api/useAbout'
 import { Mail, MapPin, Phone, Send, MessageSquare } from 'lucide-react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Button } from '@/components/ui/button'
@@ -87,25 +89,22 @@ const ContactInfoCard = ({
   )
 }
 
-const SocialLink = ({ icon: Icon, href, label, delay }: { icon: React.ElementType, href: string, label: string, delay: number }) => (
-  <motion.a
-    initial={{ opacity: 0, scale: 0.8 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true }}
-    transition={{ delay, duration: 0.3 }}
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label={label}
-    className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all group"
-  >
-    <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-  </motion.a>
-)
-
 export function Contact() {
   const [statusMessage, setStatusMessage] = useState("")
   const { mutate: sendMessage, isPending: isSubmitting } = useSendMessage()
+  const { data: about } = useAbout()
+  const { data: settings } = useSettings()
+
+  const contactEmail = about?.email || settings?.email
+  const contactPhone = about?.phone || settings?.phone
+  const contactAddress = about?.location || settings?.address
+
+  const aboutSocials = (about?.socialLinks || [])
+    .filter(l => l.active && l.url)
+    .map(l => ({ id: l.id, platform: l.platform, url: l.url, isVisible: true, sortOrder: 0 }))
+
+  const settingsSocials = settings?.socialLinks?.filter(l => l.isVisible && l.url) || []
+  const visibleSocials = aboutSocials.length > 0 ? aboutSocials : settingsSocials
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -122,7 +121,7 @@ export function Contact() {
     
     sendMessage(data, {
       onSuccess: () => {
-        setStatusMessage("Message sent successfully!")
+        setStatusMessage("Message sent successfully! Thank you for reaching out.")
         formElement.reset()
       },
       onError: () => {
@@ -132,7 +131,7 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden scroll-margin-top border-t border-border/30">
+    <section id="contact" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden border-t border-border/30">
       <GridBackground />
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionHeading
@@ -154,35 +153,66 @@ export function Contact() {
             </div>
 
             <div className="space-y-2 -mx-4">
-              <ContactInfoCard
-                icon={Mail}
-                title="Email Address"
-                details="hello@example.com"
-                link="mailto:hello@example.com"
-                delay={0.1}
-              />
-              <ContactInfoCard
-                icon={Phone}
-                title="Phone / WhatsApp"
-                details="+94 77 123 4567"
-                link="tel:+94771234567"
-                delay={0.2}
-              />
-              <ContactInfoCard
-                icon={MapPin}
-                title="Location"
-                details="Colombo, Sri Lanka"
-                delay={0.3}
-              />
+              {contactEmail && (
+                <ContactInfoCard
+                  icon={Mail}
+                  title="Email Address"
+                  details={contactEmail}
+                  link={`mailto:${contactEmail}`}
+                  delay={0.1}
+                />
+              )}
+              {contactPhone && (
+                <ContactInfoCard
+                  icon={Phone}
+                  title="Phone / WhatsApp"
+                  details={contactPhone}
+                  link={`tel:${contactPhone.replace(/[\s-]/g, '')}`}
+                  delay={0.2}
+                />
+              )}
+              {contactAddress && (
+                <ContactInfoCard
+                  icon={MapPin}
+                  title="Location"
+                  details={contactAddress}
+                  delay={0.3}
+                />
+              )}
             </div>
 
-            <div className="pt-8 border-t border-border/50">
-              <h4 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">Follow Me</h4>
-              <div className="flex items-center gap-3">
-                <SocialLink icon={GithubIcon} href="https://github.com/yourusername" label="GitHub" delay={0.4} />
-                <SocialLink icon={LinkedinIcon} href="https://linkedin.com/in/yourusername" label="LinkedIn" delay={0.5} />
+            {visibleSocials.length > 0 && (
+              <div className="pt-8 border-t border-border/50">
+                <h4 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider">Follow Me</h4>
+                <div className="flex items-center gap-3">
+                  {visibleSocials.map((link, idx) => {
+                    const platformLower = link.platform.toLowerCase();
+                    const IconComp = platformLower.includes('github')
+                      ? GithubIcon
+                      : platformLower.includes('linkedin')
+                      ? LinkedinIcon
+                      : Mail;
+
+                    return (
+                      <motion.a
+                        key={link.id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.4 + idx * 0.1, duration: 0.3 }}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={link.platform}
+                        className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                      >
+                        <IconComp className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      </motion.a>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Right Column: Contact Form */}
@@ -203,9 +233,9 @@ export function Contact() {
                 <Label htmlFor="name" className="text-muted-foreground font-medium">Your Name</Label>
                 <Input 
                   id="name" 
-                  name="name"
+                  name="name" 
                   required
-                  placeholder="John Doe" 
+                  placeholder="Your Name" 
                   className="bg-background/50 border-border focus-visible:ring-primary/20 focus-visible:border-primary h-12 rounded-xl"
                 />
               </div>
@@ -214,10 +244,10 @@ export function Contact() {
                 <Label htmlFor="email" className="text-muted-foreground font-medium">Email Address</Label>
                 <Input 
                   id="email" 
-                  name="email"
+                  name="email" 
                   type="email"
                   required
-                  placeholder="john@example.com" 
+                  placeholder="your.email@example.com" 
                   className="bg-background/50 border-border focus-visible:ring-primary/20 focus-visible:border-primary h-12 rounded-xl"
                 />
               </div>
@@ -226,7 +256,7 @@ export function Contact() {
                 <Label htmlFor="message" className="text-muted-foreground font-medium">Message</Label>
                 <Textarea 
                   id="message" 
-                  name="message"
+                  name="message" 
                   required
                   placeholder="How can I help you?" 
                   className="bg-background/50 border-border focus-visible:ring-primary/20 focus-visible:border-primary min-h-30 resize-y rounded-xl"

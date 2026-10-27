@@ -1,4 +1,4 @@
-import { ElementType } from 'react';
+import type { ElementType } from 'react';
 import { 
   Php, Mysql, Javascript, Bootstrap, _React, Nodejs, Mongodb, Express, Nextjs, Tailwind, Framer, Typescript
 } from '@dev.icons/react';

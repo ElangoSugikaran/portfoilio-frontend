@@ -1,4 +1,4 @@
-import React, { ElementType } from 'react';
+import type { ElementType } from 'react';
 import { cn } from '@/lib/utils';
 
 export const getDeviconSvgUrl = (className: string) => {
