@@ -13,5 +13,6 @@ export function getResumeDownloadUrl(fileUrl: string, fileName?: string | null):
   const pathname = suffixIndex === -1 ? fileUrl : fileUrl.slice(0, suffixIndex);
   const suffix = suffixIndex === -1 ? '' : fileUrl.slice(suffixIndex);
   const afterUpload = pathname.slice(uploadIndex + uploadPath.length);
-  return `${pathname.slice(0, uploadIndex + uploadPath.length)}fl_attachment:${downloadName}/${afterUpload}${suffix}`;
+  const encodedDownloadName = encodeURIComponent(downloadName).replace(/\./g, '%2E');
+  return `${pathname.slice(0, uploadIndex + uploadPath.length)}fl_attachment:${encodedDownloadName}/${afterUpload}${suffix}`;
 }
