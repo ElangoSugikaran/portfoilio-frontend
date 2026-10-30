@@ -25,6 +25,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useAbout } from '@/hooks/api/useAbout'
 import { scrollToAnchor } from '@/lib/scroll'
 import { SITE_ROLE } from '@/lib/brand'
+import { getResumeDownloadUrl } from '@/lib/resume-download'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -73,6 +74,7 @@ export function About() {
 
   const primaryResume = about?.resumes?.find((r) => r.isPrimary) || about?.resumes?.[0]
   const cvUrl = primaryResume?.fileUrl
+  const cvDownloadUrl = cvUrl ? getResumeDownloadUrl(cvUrl, primaryResume.fileName) : undefined
 
   const aboutImageUrl = about?.avatar?.url
   useEffect(() => {
@@ -383,10 +385,8 @@ export function About() {
                           className="h-8 min-w-0 flex-1 px-2 rounded-xl bg-primary text-primary-foreground font-semibold text-[10px] sm:h-8.5 sm:flex-none sm:px-3.5 sm:text-sm flex items-center justify-center gap-1 sm:gap-1.5 cursor-pointer shadow-md shadow-primary/20 hover:brightness-110 active:scale-95 transition-all"
                         >
                           <a
-                            href={cvUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download="Elango_Sugikaran_Resume.pdf"
+                            href={cvDownloadUrl}
+                            download
                             title="View or download official CV in PDF format"
                           >
                             <Download className="w-3.5 h-3.5" />

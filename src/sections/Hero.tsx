@@ -5,6 +5,7 @@ import { useAbout } from '@/hooks/api/useAbout'
 import { scrollToAnchor } from '@/lib/scroll'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SITE_ROLE } from '@/lib/brand'
+import { getResumeDownloadUrl } from '@/lib/resume-download'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
@@ -109,8 +110,9 @@ export function Hero() {
   const rolesKey = roleOptions.join('|')
 
   // Resume documents are managed with the About profile.
-  const primaryResume = about?.resumes?.find(r => r.isPrimary)?.fileUrl || about?.resumes?.[0]?.fileUrl
-  const cvUrl = primaryResume
+  const primaryResume = about?.resumes?.find(r => r.isPrimary) || about?.resumes?.[0]
+  const cvUrl = primaryResume?.fileUrl
+  const cvDownloadUrl = cvUrl ? getResumeDownloadUrl(cvUrl, primaryResume.fileName) : undefined
 
   // Social links are managed with the About profile.
   const aboutGithub = about?.socialLinks?.find(
@@ -271,9 +273,8 @@ export function Hero() {
             {/* Resume Button */}
             {cvUrl && (
               <a
-                href={cvUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={cvDownloadUrl}
+                download
                 className="h-12 px-6 rounded-full font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-sm cursor-pointer group"
               >
                 <Download className="w-4 h-4 text-white/90 group-hover:-translate-y-0.5 transition-transform duration-300" />
