@@ -7,6 +7,24 @@
 
 @custom-variant dark (&:is(.dark, .dark *));
 
+@property --amb-a {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #3b6ef0;
+}
+
+@property --amb-b {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #7c5ce6;
+}
+
+@property --amb-c {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #14aabe;
+}
+
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: 'Geist Variable', sans-serif;
@@ -166,5 +184,267 @@
   input[type=number],
   textarea {
     cursor: text;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.ambient-background {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  contain: paint;
+  pointer-events: none;
+  isolation: isolate;
+  --amb-a: rgb(59 110 240 / 0.09);
+  --amb-b: rgb(124 92 230 / 0.055);
+  --amb-c: rgb(59 110 240 / 0.065);
+  transition:
+    --amb-a 1.5s ease,
+    --amb-b 1.5s ease,
+    --amb-c 1.5s ease;
+}
+
+.ambient-background::before,
+.ambient-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ambient-background::before {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--amb-a) 10%, transparent),
+    transparent 38%,
+    color-mix(in oklab, var(--amb-b) 8%, transparent)
+  );
+}
+
+.ambient-background::after {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.35'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  opacity: 0;
+}
+
+.dark .ambient-background::after {
+  opacity: 0.025;
+}
+
+.ambient-background__orb {
+  position: absolute;
+  width: min(82vw, 68rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--amb-a) 0%, transparent 70%);
+  will-change: transform;
+}
+
+.ambient-background__orb--a {
+  top: -40%;
+  left: -22%;
+  --drift-x: 10vw;
+  --drift-negative-x: -10vw;
+  --drift-y: 8vh;
+  --drift-negative-y: -8vh;
+  animation: ambient-drift-a 38s ease-in-out infinite alternate;
+}
+
+.ambient-background__orb--b {
+  top: -4%;
+  right: -34%;
+  background: radial-gradient(ellipse at center, var(--amb-b) 0%, transparent 70%);
+  --drift-x: 13vw;
+  --drift-negative-x: -13vw;
+  --drift-y: 9vh;
+  --drift-negative-y: -9vh;
+  animation: ambient-drift-b 52s ease-in-out -17s infinite alternate;
+}
+
+.ambient-background__orb--c {
+  bottom: -58%;
+  left: 10%;
+  width: min(78vw, 64rem);
+  background: radial-gradient(ellipse at center, var(--amb-c) 0%, transparent 70%);
+  --drift-x: 8vw;
+  --drift-negative-x: -8vw;
+  --drift-y: 6vh;
+  --drift-negative-y: -6vh;
+  animation: ambient-drift-c 64s ease-in-out -31s infinite alternate;
+}
+
+.ambient-background[data-tone='about'] {
+  --amb-a: rgb(59 110 240 / 0.09);
+  --amb-b: rgb(124 92 230 / 0.05);
+  --amb-c: rgb(59 110 240 / 0.065);
+}
+
+.ambient-background[data-tone='experience'] {
+  --amb-a: rgb(124 92 230 / 0.08);
+  --amb-b: rgb(59 110 240 / 0.065);
+  --amb-c: rgb(124 92 230 / 0.055);
+}
+
+.ambient-background[data-tone='projects'] {
+  --amb-a: rgb(124 92 230 / 0.055);
+  --amb-b: rgb(59 110 240 / 0.055);
+  --amb-c: rgb(124 92 230 / 0.04);
+}
+
+.ambient-background[data-tone='skills'] {
+  --amb-a: rgb(20 170 190 / 0.09);
+  --amb-b: rgb(59 110 240 / 0.06);
+  --amb-c: rgb(20 170 190 / 0.055);
+}
+
+.ambient-background[data-tone='education'] {
+  --amb-a: rgb(59 110 240 / 0.08);
+  --amb-b: rgb(20 170 190 / 0.065);
+  --amb-c: rgb(59 110 240 / 0.05);
+}
+
+.ambient-background[data-tone='certifications'] {
+  --amb-a: rgb(99 102 241 / 0.08);
+  --amb-b: rgb(124 92 230 / 0.065);
+  --amb-c: rgb(99 102 241 / 0.05);
+}
+
+.ambient-background[data-tone='contact'] {
+  --amb-a: rgb(59 110 240 / 0.085);
+  --amb-b: rgb(125 211 252 / 0.055);
+  --amb-c: rgb(59 110 240 / 0.06);
+}
+
+.dark .ambient-background {
+  --amb-a: rgb(96 165 250 / 0.16);
+  --amb-b: rgb(139 120 250 / 0.12);
+  --amb-c: rgb(96 165 250 / 0.12);
+}
+
+.dark .ambient-background[data-tone='experience'] {
+  --amb-a: rgb(139 120 250 / 0.15);
+  --amb-b: rgb(96 165 250 / 0.13);
+  --amb-c: rgb(139 120 250 / 0.11);
+}
+
+.dark .ambient-background[data-tone='projects'] {
+  --amb-a: rgb(139 120 250 / 0.105);
+  --amb-b: rgb(96 165 250 / 0.105);
+  --amb-c: rgb(139 120 250 / 0.08);
+}
+
+.dark .ambient-background[data-tone='skills'] {
+  --amb-a: rgb(56 189 220 / 0.16);
+  --amb-b: rgb(96 165 250 / 0.13);
+  --amb-c: rgb(56 189 220 / 0.11);
+}
+
+.dark .ambient-background[data-tone='education'] {
+  --amb-a: rgb(96 165 250 / 0.15);
+  --amb-b: rgb(56 189 220 / 0.13);
+  --amb-c: rgb(96 165 250 / 0.1);
+}
+
+.dark .ambient-background[data-tone='certifications'] {
+  --amb-a: rgb(129 140 248 / 0.15);
+  --amb-b: rgb(139 120 250 / 0.13);
+  --amb-c: rgb(129 140 248 / 0.1);
+}
+
+.dark .ambient-background[data-tone='contact'] {
+  --amb-a: rgb(96 165 250 / 0.15);
+  --amb-b: rgb(125 211 252 / 0.12);
+  --amb-c: rgb(96 165 250 / 0.1);
+}
+
+.section-background {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.section-background--grid {
+  background-image:
+    linear-gradient(rgb(59 110 240 / 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(59 110 240 / 0.055) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at 50% 50%, black 32%, transparent 88%);
+}
+
+.dark .section-background--grid {
+  background-image:
+    linear-gradient(rgb(96 165 250 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(96 165 250 / 0.05) 1px, transparent 1px);
+}
+
+@keyframes ambient-drift-a {
+  from {
+    transform: translate3d(var(--drift-negative-x), var(--drift-y), 0) scale(0.96);
+  }
+  to {
+    transform: translate3d(var(--drift-x), var(--drift-negative-y), 0) scale(1.04);
+  }
+}
+
+@keyframes ambient-drift-b {
+  from {
+    transform: translate3d(var(--drift-x), var(--drift-negative-y), 0) scale(1.04);
+  }
+  to {
+    transform: translate3d(var(--drift-negative-x), var(--drift-y), 0) scale(0.96);
+  }
+}
+
+@keyframes ambient-drift-c {
+  from {
+    transform: translate3d(var(--drift-negative-x), var(--drift-y), 0) scale(0.97);
+  }
+  to {
+    transform: translate3d(var(--drift-x), var(--drift-negative-y), 0) scale(1.03);
+  }
+}
+
+@supports (background: radial-gradient(ellipse in oklab, red, transparent)) {
+  .ambient-background__orb--a {
+    background: radial-gradient(ellipse in oklab at center, var(--amb-a) 0%, transparent 70%);
+  }
+
+  .ambient-background__orb--b {
+    background: radial-gradient(ellipse in oklab at center, var(--amb-b) 0%, transparent 70%);
+  }
+
+  .ambient-background__orb--c {
+    background: radial-gradient(ellipse in oklab at center, var(--amb-c) 0%, transparent 70%);
+  }
+}
+
+@media (max-width: 767px) {
+  .ambient-background__orb--c {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-background {
+    transition: none;
+  }
+
+  .ambient-background__orb {
+    animation: none;
+    will-change: auto;
   }
 }

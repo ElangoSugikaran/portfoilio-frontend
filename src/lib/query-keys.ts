@@ -1,3 +1,5 @@
+import type { ProjectListParams } from '@/types/api';
+
 /**
  * Centralized Query Key Factory
  * Ensures consistent cache invalidation and prefetching across the entire application.
@@ -5,7 +7,7 @@
 export const queryKeys = {
   projects: {
     all: ['projects'] as const,
-    list: (params?: { featured?: boolean; category?: string }) =>
+    list: (params?: ProjectListParams) =>
       ['projects', 'list', params] as const,
     detail: (slugOrId: string) => ['projects', 'detail', slugOrId] as const,
   },
@@ -18,7 +20,7 @@ export const queryKeys = {
   },
   education: {
     all: ['education'] as const,
-    list: (params?: { showOnHome?: boolean }) => ['education', 'list', params] as const,
+    list: (params?: { showOnHome?: boolean; all?: boolean; home?: boolean }) => ['education', 'list', params] as const,
     detail: (id: string) => ['education', 'detail', id] as const,
   },
   certificates: {

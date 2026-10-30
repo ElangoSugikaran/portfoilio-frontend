@@ -38,7 +38,12 @@ export function QueryState<T>({
       return <>{loadingComponent}</>;
     }
     return (
-      <div className={cn('w-full py-16 flex flex-col items-center justify-center gap-4', className)}>
+      <div
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        className={cn('w-full py-16 flex flex-col items-center justify-center gap-4', className)}
+      >
         <div className="w-10 h-10 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
         <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest animate-pulse">
           Loading content...
@@ -55,6 +60,7 @@ export function QueryState<T>({
 
     return (
       <div
+        role="alert"
         className={cn(
           'w-full py-12 px-6 rounded-3xl bg-destructive/5 border border-destructive/20 text-center flex flex-col items-center justify-center gap-4 my-4',
           className

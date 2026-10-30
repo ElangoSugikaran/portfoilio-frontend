@@ -10,25 +10,6 @@ import { QueryState } from '@/components/common/QueryState'
 import { getEducationIcon } from '@/lib/education-icons'
 import type { ApiEducation } from '@/types/api'
 
-const GridBackground = () => (
-  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 0.04 }}
-      transition={{ duration: 1.5 }}
-      className="absolute inset-0"
-      style={{
-        backgroundImage: `
-          linear-gradient(var(--foreground) 1px, transparent 1px),
-          linear-gradient(90deg, var(--foreground) 1px, transparent 1px)
-        `,
-        backgroundSize: '40px 40px',
-        maskImage: 'radial-gradient(ellipse at 50% 50%, black 30%, transparent 90%)'
-      }}
-    />
-  </div>
-)
-
 const typeStyles: Record<string, string> = {
   degree: "bg-primary/10 text-primary border-primary/20",
   diploma: "bg-primary/10 text-primary border-primary/20",
@@ -40,14 +21,10 @@ const typeStyles: Record<string, string> = {
 }
 
 export function Education() {
-  const { data: educationList = [], isLoading, isError, error, refetch } = useEducation();
-  // Show top 3 most recent entries from API (prioritizing showOnHome if configured)
-  const homeItems = educationList.filter((item) => item.showOnHome);
-  const recentEducation = (homeItems.length > 0 ? homeItems : educationList).slice(0, 3);
+  const { data: recentEducation = [], isLoading, isError, error, refetch } = useEducation({ home: true });
 
   return (
-    <section id="education" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden scroll-margin-top border-t border-border/30">
-      <GridBackground />
+    <section id="education" data-ambient="education" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden scroll-margin-top">
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionHeading
           icon={BookOpen}
@@ -71,14 +48,14 @@ export function Education() {
           data={recentEducation}
           onRetry={() => refetch()}
           loadingComponent={
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
               {[1, 2, 3].map((n) => (
                 <div key={n} className="h-72 rounded-3xl bg-card/40 border border-border/40 animate-pulse" />
               ))}
             </div>
           }
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
             {recentEducation.map((item: ApiEducation, index: number) => {
               const Icon = getEducationIcon(item.icon, item.type);
               const period = formatDateRange(item.startDate, item.endDate);

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -7,7 +7,6 @@ import { useEducation } from '@/hooks/api/useEducation'
 import { formatDateRange } from '@/lib/date'
 import { SEO } from '@/components/common/SEO'
 import { QueryState } from '@/components/common/QueryState'
-import { getGlobalLenis } from '@/lib/scroll'
 import { cn } from '@/lib/utils'
 import { getEducationIcon } from '@/lib/education-icons'
 import type { ApiEducation } from '@/types/api'
@@ -131,48 +130,58 @@ export default function EducationPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const lineFillRef = useRef<HTMLDivElement>(null);
 
-  // Sync GSAP ScrollTrigger with global Lenis instance
-  useEffect(() => {
-    const lenis = getGlobalLenis();
-    if (!lenis) return;
-    const handleScroll = () => {
-      ScrollTrigger.update();
-    };
-    lenis.on('scroll', handleScroll);
-    return () => {
-      lenis.off('scroll', handleScroll);
-    };
-  }, []);
-
-  // GSAP ScrollTrigger timeline line drawing and card entrance animations
+  // Keep the timeline progress and each card tied to scroll so both reverse smoothly.
   useGSAP(
     () => {
       if (!containerRef.current) return;
 
-      // 1. Scrub the middle timeline line fill as user scrolls down and up
-      if (lineFillRef.current) {
+      const items = Array.from(containerRef.current.querySelectorAll<HTMLElement>('.timeline-item'));
+      const getDotCenter = (item: HTMLElement) => {
+        const dot = item.querySelector<HTMLElement>('.timeline-dot');
+        return dot ? dot.offsetTop + dot.offsetHeight / 2 : 0;
+      };
+
+      if (lineFillRef.current && items.length > 1) {
         gsap.fromTo(
           lineFillRef.current,
-          { height: '0%' },
+          { scaleY: 0 },
           {
-            height: '100%',
+            scaleY: 1,
             ease: 'none',
             scrollTrigger: {
-              trigger: containerRef.current,
-              start: 'top 75%',
-              end: 'bottom 80%',
-              scrub: 0.4,
+              trigger: items[0],
+              start: () => `top+=${getDotCenter(items[0])} center`,
+              endTrigger: items[items.length - 1],
+              end: () => `top+=${getDotCenter(items[items.length - 1])} center`,
+              scrub: 0.5,
             },
           }
         );
       }
 
-      // 2. Animate each item and dot with smooth scrub/reverse behavior
-      const items = containerRef.current.querySelectorAll('.timeline-item');
       items.forEach((item, index) => {
         const card = item.querySelector('.timeline-card');
-        const dot = item.querySelector('.timeline-dot');
+        const dot = item.querySelector('.timeline-dot-marker');
+        const connector = item.querySelector('.timeline-connector');
         const isLeft = index % 2 === 0;
+
+        if (connector) {
+          gsap.fromTo(
+            connector,
+            { scaleX: 0, opacity: 0.35 },
+            {
+              scaleX: 1,
+              opacity: 1,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: item,
+                start: 'top 88%',
+                end: 'top 58%',
+                scrub: 0.45,
+              },
+            }
+          );
+        }
 
         if (card) {
           gsap.fromTo(
@@ -184,12 +193,13 @@ export default function EducationPage() {
             {
               opacity: 1,
               x: 0,
-              duration: 0.6,
-              ease: 'power2.out',
+              y: 0,
+              ease: 'none',
               scrollTrigger: {
                 trigger: item,
-                start: 'top 85%',
-                toggleActions: 'play reverse play reverse',
+                start: 'top 88%',
+                end: 'top 58%',
+                scrub: 0.45,
               },
             }
           );
@@ -202,12 +212,12 @@ export default function EducationPage() {
             {
               scale: 1,
               opacity: 1,
-              duration: 0.4,
-              ease: 'back.out(1.7)',
+              ease: 'none',
               scrollTrigger: {
                 trigger: item,
-                start: 'top 82%',
-                toggleActions: 'play reverse play reverse',
+                start: 'top 84%',
+                end: 'top 62%',
+                scrub: 0.35,
               },
             }
           );
@@ -227,15 +237,11 @@ export default function EducationPage() {
   );
 
   return (
-    <div className="min-h-screen relative bg-background pt-24 pb-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden">
+    <div data-ambient="education" className="min-h-dvh relative pt-24 pb-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden">
       <SEO
         title="Educational History | Sugikaran"
         description="Comprehensive timeline of academic qualifications, engineering degrees, and specialized computing certifications."
       />
-
-      {/* Subtle Background Gradients */}
-      <div className="fixed top-0 right-0 w-150 h-150 bg-primary/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
-      <div className="fixed bottom-0 left-0 w-125 h-125 bg-blue-500/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
 
       <div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-10 md:gap-14">
         
@@ -272,17 +278,16 @@ export default function EducationPage() {
           <div ref={containerRef} className="relative max-w-5xl mx-auto mt-6 md:mt-10 w-full">
             
             {/* Center Timeline Track (Mobile: left aligned, Desktop: centered) */}
-            <div className="absolute left-4 sm:left-6 md:left-1/2 top-6 bottom-10 w-1 -translate-x-1/2 bg-border/60 dark:bg-zinc-800 rounded-full overflow-hidden">
+            <div className="absolute left-4 sm:left-6 lg:left-1/2 top-6 bottom-10 w-1 -translate-x-1/2 bg-border/60 dark:bg-zinc-800 rounded-full overflow-hidden">
               {/* Scroll-driven Glowing Progress Line that fills down as user scrolls */}
               <div
                 ref={lineFillRef}
-                className="w-full bg-linear-to-b from-primary via-blue-500 to-indigo-500 rounded-full shadow-[0_0_14px_rgba(59,130,246,0.85)]"
-                style={{ height: '0%' }}
+                className="absolute inset-0 origin-top bg-linear-to-b from-primary via-blue-500 to-indigo-500 rounded-full shadow-[0_0_14px_rgba(59,130,246,0.85)]"
               />
             </div>
 
             {/* Alternating Journey Items */}
-            <div className="flex flex-col gap-10 md:gap-16">
+            <div className="flex flex-col gap-10 lg:gap-16">
               {educationList.map((item: ApiEducation, index: number) => {
                 const Icon = getEducationIcon(item.icon, item.type);
                 const period = formatDateRange(item.startDate, item.endDate);
@@ -293,24 +298,33 @@ export default function EducationPage() {
                 return (
                   <div
                     key={item.id}
-                    className="timeline-item relative flex flex-col md:flex-row items-center w-full"
+                    className="timeline-item relative flex flex-col lg:flex-row items-center w-full"
                   >
-                    {/* Timeline Milestone Dot (Center on Desktop, Left on Mobile) */}
-                    <div className="timeline-dot absolute left-4 sm:left-6 md:left-1/2 top-7 md:top-9 -translate-x-1/2 z-20 flex items-center justify-center">
+                    {/* Timeline milestone stays to the left until there is room to center it. */}
+                    <div className="timeline-dot absolute left-4 sm:left-6 lg:left-1/2 top-7 lg:top-9 -translate-x-1/2 z-20 flex items-center justify-center">
                       <div className={cn(
-                        "w-5 h-5 rounded-full bg-background border-2 shadow-md flex items-center justify-center transition-all duration-300",
+                        "timeline-dot-marker w-5 h-5 rounded-full bg-background border-2 shadow-md flex items-center justify-center transition-all duration-300",
                         styleConfig.dot
                       )}>
                         <div className={cn("w-2 h-2 rounded-full", styleConfig.core)} />
                       </div>
                     </div>
 
+                    <div
+                      aria-hidden="true"
+                      className={cn(
+                        "timeline-connector absolute top-[45px] hidden h-px w-[30px] bg-primary/50 lg:block",
+                        isLeft
+                          ? "left-[calc(50%-40px)] origin-right"
+                          : "left-[calc(50%+10px)] origin-left"
+                      )}
+                    />
 
-                    {/* Alternating Layout: Card on Left (even) or Right (odd); Opposite side is clean */}
-                    <div className="w-full flex flex-col md:flex-row items-center pl-10 sm:pl-14 md:pl-0">
+                    {/* Keep a single readable column on tablets, then alternate around the desktop line. */}
+                    <div className="w-full flex flex-col lg:flex-row items-center pl-10 sm:pl-14 lg:pl-0">
                       
                       {/* Left Column (Card on Even, Empty on Odd) */}
-                      <div className="w-full md:w-[calc(50%-2.5rem)] md:mr-auto">
+                      <div className="w-full lg:w-[calc(50%-2.5rem)] lg:mr-auto">
                         {isLeft ? (
                           <EducationCard
                             item={item}
@@ -320,12 +334,12 @@ export default function EducationPage() {
                             cleanedDescription={cleanedDescription}
                           />
                         ) : (
-                          <div className="hidden md:block w-full h-1" />
+                          <div className="hidden lg:block w-full h-1" />
                         )}
                       </div>
 
                       {/* Right Column (Empty on Even, Card on Odd) */}
-                      <div className="w-full md:w-[calc(50%-2.5rem)] md:ml-auto mt-4 md:mt-0">
+                      <div className="w-full lg:w-[calc(50%-2.5rem)] lg:ml-auto mt-4 lg:mt-0">
                         {!isLeft ? (
                           <EducationCard
                             item={item}
@@ -335,7 +349,7 @@ export default function EducationPage() {
                             cleanedDescription={cleanedDescription}
                           />
                         ) : (
-                          <div className="hidden md:block w-full h-1" />
+                          <div className="hidden lg:block w-full h-1" />
                         )}
                       </div>
 

@@ -16,7 +16,7 @@ export const ErrorFallback = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
+    <div className="min-h-dvh bg-background flex items-center justify-center p-6 text-center">
       <div className="max-w-md w-full bg-card border border-border/60 rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col items-center gap-6">
         <div className="w-16 h-16 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center">
           <AlertTriangle className="w-8 h-8" />

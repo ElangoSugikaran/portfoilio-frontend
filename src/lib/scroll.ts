@@ -1,15 +1,65 @@
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type Lenis from 'lenis';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export const HEADER_OFFSET = 0; // Sections already have internal py-24/py-32 providing perfect clearance
 
+type LenisListener = (instance: Lenis | null) => void;
+
 let lenisInstance: Lenis | null = null;
+let loopLenis: Lenis | null = null;
+let scrollHandler: (() => void) | null = null;
+let tickerHandler: ((time: number) => void) | null = null;
+const lenisListeners = new Set<LenisListener>();
+
+function detachLenisLoop() {
+  if (!loopLenis) return;
+
+  if (scrollHandler) loopLenis.off('scroll', scrollHandler);
+  if (tickerHandler) gsap.ticker.remove(tickerHandler);
+
+  loopLenis = null;
+  scrollHandler = null;
+  tickerHandler = null;
+}
+
+function attachLenisLoop(instance: Lenis) {
+  detachLenisLoop();
+
+  loopLenis = instance;
+  scrollHandler = () => ScrollTrigger.update();
+  tickerHandler = (time) => instance.raf(time * 1000);
+
+  instance.on('scroll', scrollHandler);
+  gsap.ticker.add(tickerHandler);
+  gsap.ticker.lagSmoothing(0);
+}
 
 export function setGlobalLenis(instance: Lenis | null) {
+  if (lenisInstance === instance) return;
+
+  detachLenisLoop();
   lenisInstance = instance;
+
+  if (instance) {
+    attachLenisLoop(instance);
+  }
+
+  lenisListeners.forEach((listener) => listener(instance));
 }
 
 export function getGlobalLenis(): Lenis | null {
   return lenisInstance;
+}
+
+export function subscribeGlobalLenis(listener: LenisListener) {
+  lenisListeners.add(listener);
+  listener(lenisInstance);
+  return () => {
+    lenisListeners.delete(listener);
+  };
 }
 
 export function prefersReducedMotion(): boolean {

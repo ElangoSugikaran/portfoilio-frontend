@@ -9,30 +9,34 @@ import {
   Target, 
   Sparkles, 
   Compass, 
-  Cpu
+  Cpu,
+  Building2,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useProject } from '@/hooks/api/useProjects';
+import { isCompanyProject } from '@/lib/project-utils';
 import { RenderTechIcon } from '@/lib/tech-icons';
 import { RichText } from '@/components/common/RichText';
 import { formatDateRange } from '@/lib/date';
 import { SEO } from '@/components/common/SEO';
 import { QueryState } from '@/components/common/QueryState';
+import { ProjectMediaGallery } from '@/components/common/ProjectMediaGallery';
 
 export default function ProjectDetailPage() {
   const { id: slugOrId } = useParams<{ id: string }>();
   const { data: project, isLoading, isError, error, refetch } = useProject(slugOrId);
+  const isCompany = isCompanyProject(project);
+  const isProjectNotFound =
+    isError && typeof error === 'object' && error !== null && 'status' in error && error.status === 404;
 
   return (
-    <div className="min-h-screen bg-background pt-28 pb-36 px-4 sm:px-6 md:px-12 lg:px-24 relative overflow-hidden">
-      {/* Background Gradients */}
-      <div className="fixed top-0 right-0 w-150 h-150 bg-primary/5 rounded-full blur-[140px] pointer-events-none mix-blend-screen" />
-      <div className="fixed bottom-0 left-0 w-125 h-125 bg-blue-500/5 rounded-full blur-[120px] pointer-events-none mix-blend-screen" />
+    <div data-ambient="projects" className="min-h-dvh pt-28 pb-36 px-4 sm:px-6 md:px-12 lg:px-24 relative overflow-hidden">
 
       <div className="relative z-10 max-w-5xl mx-auto flex flex-col gap-12">
         <QueryState
           isLoading={isLoading}
-          isError={isError}
+          isError={isError && !isProjectNotFound}
           error={error}
           data={project}
           onRetry={() => refetch()}
@@ -64,26 +68,30 @@ export default function ProjectDetailPage() {
 
               {/* Navigation & Header */}
               <motion.div
-                initial={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0, y: -16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.45 }}
                 className="flex flex-col gap-6"
               >
-                <div className="flex items-center justify-between">
-                  <Button asChild variant="ghost" className="hover:bg-muted/50 rounded-xl -ml-2 text-muted-foreground hover:text-foreground">
-                    <Link to="/projects">
-                      <ArrowLeft className="w-4 h-4 mr-2" />
-                      Back to Archive
-                    </Link>
-                  </Button>
+                {/* Clean Top Navigation Bar */}
+                <div className="flex items-center justify-between gap-4">
+                  <Link
+                    to="/projects"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group py-1"
+                  >
+                    <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1 text-primary" />
+                    <span>Back to All Projects</span>
+                  </Link>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
-                      {project.category?.name || 'Project'}
-                    </span>
-                    {project.methodology && (
-                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-muted text-muted-foreground border border-border">
-                        {project.methodology}
+                    {isCompany ? (
+                      <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center gap-1.5 font-mono shadow-2xs">
+                        <Building2 className="w-3.5 h-3.5 text-amber-500" />
+                        Company Project
+                      </span>
+                    ) : (
+                      <span className="px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
+                        {project.category?.name || 'Project'}
                       </span>
                     )}
                   </div>
@@ -108,7 +116,7 @@ export default function ProjectDetailPage() {
                     </Button>
                   )}
 
-                  {project.githubUrl && (
+                  {project.githubUrl ? (
                     <Button asChild variant="outline" className="h-12 px-7 rounded-2xl border-border/60 hover:bg-muted/50 font-semibold gap-2 hover:scale-105 transition-all">
                       <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                         <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -117,7 +125,15 @@ export default function ProjectDetailPage() {
                         Source Code
                       </a>
                     </Button>
-                  )}
+                  ) : isCompany ? (
+                    <div 
+                      className="h-12 px-5 rounded-2xl border border-amber-500/25 bg-amber-500/10 text-muted-foreground text-xs sm:text-sm font-semibold flex items-center gap-2 select-none"
+                      title="Source code is private and proprietary to the company"
+                    >
+                      <Lock className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>Private Company Repository</span>
+                    </div>
+                  ) : null}
                 </div>
               </motion.div>
 
@@ -137,6 +153,49 @@ export default function ProjectDetailPage() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-background/40 via-transparent to-transparent pointer-events-none" />
+                </motion.div>
+              )}
+
+              {/* Company Project Notice Banner */}
+              {isCompany && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="p-5 sm:p-7 rounded-3xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row items-start gap-4 sm:gap-5 shadow-sm"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground">
+                        Company Project · Authorized Showcase
+                      </h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                        Commercial Production
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      Company Project. This is a company-owned commercial product that I worked on as a Full Stack Developer. It is showcased here with the company’s authorization. The source code is private and proprietary, so there is no public repository, but I’m happy to walk through the architecture and my contributions on request.
+                    </p>
+                    {project.liveUrl && (
+                      <div className="flex items-center gap-2 pt-1 text-xs font-mono text-primary font-semibold">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>
+                          Live production site active at{' '}
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:opacity-80"
+                          >
+                            {project.liveUrl}
+                          </a>
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               )}
 
@@ -209,6 +268,14 @@ export default function ProjectDetailPage() {
                 </div>
               )}
 
+              {/* Visual Showcase & Architecture Gallery */}
+              {project.media && project.media.length > 0 && (
+                <ProjectMediaGallery
+                  media={project.media}
+                  projectTitle={project.title}
+                />
+              )}
+
               {/* Project Phases / Lifecycle */}
               {project.phases && project.phases.length > 0 && (
                 <div className="p-8 sm:p-10 rounded-3xl bg-card border border-border/50 space-y-6">
@@ -273,8 +340,14 @@ export default function ProjectDetailPage() {
               {/* Bottom CTA bar */}
               <div className="p-8 rounded-3xl bg-primary/10 border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
-                  <h3 className="text-xl font-bold text-foreground">Interested in this project?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Explore the source code or preview the deployment.</p>
+                  <h3 className="text-xl font-bold text-foreground">
+                    {isCompany ? 'Interested in this company project?' : 'Interested in this project?'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {isCompany 
+                      ? 'Explore the live platform or reach out to discuss the architecture and implementation details.'
+                      : 'Explore the source code or preview the deployment.'}
+                  </p>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   {project.liveUrl && (
@@ -285,13 +358,21 @@ export default function ProjectDetailPage() {
                       </a>
                     </Button>
                   )}
-                  {project.githubUrl && (
+                  {project.githubUrl ? (
                     <Button asChild variant="outline" className="w-full sm:w-auto rounded-xl">
                       <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                         GitHub Code
                       </a>
                     </Button>
-                  )}
+                  ) : isCompany ? (
+                    <div 
+                      className="px-4 py-2.5 rounded-xl border border-amber-500/25 bg-amber-500/10 text-muted-foreground text-xs font-semibold flex items-center justify-center gap-1.5 select-none"
+                      title="Private Company Repository"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Private Repo</span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </>

@@ -22,7 +22,7 @@ const sizeMap = {
   sm: 'w-4 h-4',
   md: 'w-6 h-6',
   lg: 'w-10 h-10',
-  xl: 'w-14 h-14'
+  xl: 'w-13 h-13 sm:w-14 sm:h-14'
 };
 
 export const TechIcon = ({ 
@@ -36,11 +36,11 @@ export const TechIcon = ({
   const sizeClass = sizeMap[size];
 
   return (
-    <div className={cn("flex flex-col items-center gap-2 group/icon", className)}>
+    <div className={cn("flex flex-col items-center gap-2 group/icon select-none", className)}>
       <div className={cn("relative flex items-center justify-center transition-transform duration-300 group-hover/icon:scale-110", sizeClass)}>
         {Component ? (
-          <div className="w-full h-full opacity-50 grayscale transition-all duration-300 group-hover/icon:opacity-100 group-hover/icon:grayscale-0 drop-shadow-sm text-foreground">
-            <Component className="w-full h-full" />
+          <div className="w-full h-full opacity-85 hover:opacity-100 transition-all duration-300 drop-shadow-sm flex items-center justify-center">
+            <Component className="w-full h-full object-contain" />
           </div>
         ) : icon ? (
           <>
@@ -64,7 +64,7 @@ export const TechIcon = ({
         ) : null}
       </div>
       {showLabel && name && (
-        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60 group-hover/icon:text-foreground transition-colors duration-300 whitespace-nowrap">
+        <span className="text-[10px] sm:text-[11px] font-mono font-semibold uppercase tracking-wider text-muted-foreground/70 group-hover/icon:text-foreground transition-colors duration-300 whitespace-nowrap">
           {name}
         </span>
       )}

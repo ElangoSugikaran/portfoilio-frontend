@@ -2,7 +2,7 @@ import { apiClient } from './api.client';
 import type { ApiEducation } from '@/types/api';
 
 export const educationService = {
-  getEducation: async (params?: { showOnHome?: boolean; all?: boolean }): Promise<ApiEducation[]> => {
+  getEducation: async (params?: { showOnHome?: boolean; all?: boolean; home?: boolean }): Promise<ApiEducation[]> => {
     const res = await apiClient.get('/education', { params });
     return res.data.data;
   },

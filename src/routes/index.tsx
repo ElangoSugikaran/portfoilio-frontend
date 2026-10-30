@@ -31,6 +31,10 @@ export const router = createBrowserRouter([
         element: <EducationPage />,
       },
       {
+        path: "certifications",
+        element: <CertificationsPage />,
+      },
+      {
         path: "certifications/:category",
         element: <CertificationsPage />,
       },

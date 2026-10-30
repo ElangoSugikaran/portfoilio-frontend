@@ -1,42 +1,26 @@
 import { motion } from 'framer-motion'
-import { Award, GraduationCap, ShieldCheck, ArrowRight } from 'lucide-react'
+import { Award, GraduationCap, ShieldCheck, ArrowRight, AlertCircle, RefreshCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useCertificates } from '@/hooks/api/useCertificates'
 
-const GridBackground = () => (
-  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 0.04 }}
-      transition={{ duration: 1.5 }}
-      className="absolute inset-0"
-      style={{
-        backgroundImage: `
-          linear-gradient(var(--foreground) 1px, transparent 1px),
-          linear-gradient(90deg, var(--foreground) 1px, transparent 1px)
-        `,
-        backgroundSize: '40px 40px',
-        maskImage: 'radial-gradient(ellipse at 50% 50%, black 30%, transparent 90%)'
-      }}
-    />
-  </div>
-)
-
-const CategoryCard = ({ 
-  title, 
-  description, 
+const CategoryCard = ({
+  title,
+  description,
   count,
-  icon: Icon, 
-  to, 
-  delay 
-}: { 
+  countLoading,
+  icon: Icon,
+  to,
+  delay
+}: {
   title: string
   description: string
   count?: number
+  countLoading: boolean
   icon: React.ElementType
   to: string
-  delay: number 
+  delay: number
 }) => {
   return (
     <motion.div
@@ -57,7 +41,9 @@ const CategoryCard = ({
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
                   <Icon className="w-7 h-7" />
                 </div>
-                {count !== undefined && count > 0 && (
+                {countLoading ? (
+                  <Skeleton role="status" aria-label="Loading credential count" className="h-6 w-24 rounded-full" />
+                ) : count !== undefined && count > 0 && (
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                     {count} {count === 1 ? 'Credential' : 'Credentials'}
                   </span>
@@ -88,14 +74,13 @@ const CategoryCard = ({
 }
 
 export function Certifications() {
-  const { data: certificates = [] } = useCertificates();
+  const { data: certificates = [], isLoading, isError, refetch } = useCertificates();
 
   const academicCount = certificates.filter(c => c.category === 'ACADEMIC').length;
   const digitalCount = certificates.filter(c => c.category === 'DIGITAL').length;
 
   return (
-    <section id="certifications" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden border-t border-border/30">
-      <GridBackground />
+    <section id="certifications" data-ambient="certifications" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden">
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionHeading
           icon={Award}
@@ -105,12 +90,33 @@ export function Certifications() {
           title="Professional "
         />
 
+        {isError && (
+          <div
+            role="alert"
+            className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-muted-foreground"
+          >
+            <span className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
+              Credential counts could not be loaded. You can still browse each category.
+            </span>
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="inline-flex shrink-0 items-center gap-1 font-semibold text-foreground hover:text-primary"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* 2 Category Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mt-12">
           <CategoryCard
             title="Primary Certifications"
             description="Formal academic degrees, institutional diplomas, and university-recognized achievements representing foundational education excellence."
             count={academicCount}
+            countLoading={isLoading}
             icon={GraduationCap}
             to="/certifications/primary"
             delay={0}
@@ -119,6 +125,7 @@ export function Certifications() {
             title="E-Certifications"
             description="Professional online certifications, cloud credentials, and industry-recognized training programs from leading technology platforms."
             count={digitalCount}
+            countLoading={isLoading}
             icon={ShieldCheck}
             to="/certifications/e-certifications"
             delay={0.2}

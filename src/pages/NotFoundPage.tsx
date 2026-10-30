@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6 text-center">
-      <div className="max-w-md w-full bg-card border border-border/60 rounded-3xl p-8 sm:p-12 shadow-2xl flex flex-col items-center gap-6">
+    <div data-ambient="about" className="min-h-dvh flex items-center justify-center p-6 text-center relative overflow-hidden">
+      <div className="relative z-10 max-w-md w-full bg-card border border-border/60 rounded-3xl p-8 sm:p-12 shadow-2xl flex flex-col items-center gap-6">
         <span className="text-7xl font-black text-primary font-mono tracking-tighter">404</span>
 
         <div className="space-y-2">

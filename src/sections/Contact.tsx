@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useSendMessage } from '@/hooks/api/useMessages'
-import { useSettings } from '@/hooks/api/useSettings'
 import { useAbout } from '@/hooks/api/useAbout'
-import { Mail, MapPin, Phone, Send, MessageSquare } from 'lucide-react'
+import { AlertCircle, LoaderCircle, Mail, MapPin, Phone, RefreshCw, Send, MessageSquare } from 'lucide-react'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { SectionBackground } from '@/components/ui/SectionBackground'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -20,25 +20,6 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
-)
-
-const GridBackground = () => (
-  <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 0.04 }}
-      transition={{ duration: 1.5 }}
-      className="absolute inset-0"
-      style={{
-        backgroundImage: `
-          linear-gradient(var(--foreground) 1px, transparent 1px),
-          linear-gradient(90deg, var(--foreground) 1px, transparent 1px)
-        `,
-        backgroundSize: '40px 40px',
-        maskImage: 'radial-gradient(ellipse at 50% 50%, black 30%, transparent 90%)'
-      }}
-    />
-  </div>
 )
 
 const ContactInfoCard = ({ 
@@ -91,24 +72,26 @@ const ContactInfoCard = ({
 
 export function Contact() {
   const [statusMessage, setStatusMessage] = useState("")
+  const [submissionStatus, setSubmissionStatus] = useState<'success' | 'error' | null>(null)
   const { mutate: sendMessage, isPending: isSubmitting } = useSendMessage()
-  const { data: about } = useAbout()
-  const { data: settings } = useSettings()
+  const aboutQuery = useAbout()
+  const { data: about } = aboutQuery
 
-  const contactEmail = about?.email || settings?.email
-  const contactPhone = about?.phone || settings?.phone
-  const contactAddress = about?.location || settings?.address
+  const contactEmail = about?.email?.trim()
+  const contactPhone = about?.phone?.trim()
+  const contactAddress = about?.location?.trim()
+  const isContactLoading = aboutQuery.isLoading
+  const hasContactError = aboutQuery.isError
+  const hasContactDetails = Boolean(contactEmail || contactPhone || contactAddress)
 
-  const aboutSocials = (about?.socialLinks || [])
+  const visibleSocials = (about?.socialLinks || [])
     .filter(l => l.active && l.url)
     .map(l => ({ id: l.id, platform: l.platform, url: l.url, isVisible: true, sortOrder: 0 }))
-
-  const settingsSocials = settings?.socialLinks?.filter(l => l.isVisible && l.url) || []
-  const visibleSocials = aboutSocials.length > 0 ? aboutSocials : settingsSocials
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setStatusMessage("")
+    setSubmissionStatus(null)
     
     const formData = new FormData(e.currentTarget)
     const data = {
@@ -121,18 +104,24 @@ export function Contact() {
     
     sendMessage(data, {
       onSuccess: () => {
+        setSubmissionStatus('success')
         setStatusMessage("Message sent successfully! Thank you for reaching out.")
         formElement.reset()
       },
-      onError: () => {
-        setStatusMessage("Failed to send message. Please try again.")
+      onError: (error) => {
+        setSubmissionStatus('error')
+        setStatusMessage(
+          error instanceof Error
+            ? `Failed to send message: ${error.message}`
+            : "Failed to send message. Please try again.",
+        )
       }
     })
   }
 
   return (
-    <section id="contact" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden border-t border-border/30">
-      <GridBackground />
+    <section id="contact" data-ambient="contact" className="relative py-24 sm:py-32 px-4 sm:px-6 md:px-12 lg:px-24 overflow-hidden">
+      <SectionBackground variant="grid" />
       <div className="relative z-10 max-w-6xl mx-auto">
         <SectionHeading
           icon={MessageSquare}
@@ -178,6 +167,53 @@ export function Contact() {
                   details={contactAddress}
                   delay={0.3}
                 />
+              )}
+              {isContactLoading && !hasContactDetails && (
+                <div role="status" aria-live="polite" className="space-y-4 p-4">
+                  <span className="sr-only">Loading contact information</span>
+                  {[0, 1, 2].map((item) => (
+                    <div key={item} className="flex items-center gap-4 animate-pulse">
+                      <div className="h-12 w-12 shrink-0 rounded-2xl bg-muted" />
+                      <div className="space-y-2">
+                        <div className="h-3 w-28 rounded bg-muted" />
+                        <div className="h-3 w-40 max-w-full rounded bg-muted" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {isContactLoading && hasContactDetails && (
+                <p role="status" className="px-4 text-xs text-muted-foreground">
+                  Loading additional contact information…
+                </p>
+              )}
+              {!isContactLoading && hasContactError && (
+                <div
+                  role="alert"
+                  className="mx-4 flex items-center justify-between gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-muted-foreground"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-amber-500" />
+                    <span>
+                      {hasContactDetails
+                        ? 'Some contact information could not be loaded.'
+                        : 'Contact information could not be loaded.'}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => void aboutQuery.refetch()}
+                    className="inline-flex shrink-0 items-center gap-1 font-semibold text-foreground hover:text-primary"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Retry
+                  </button>
+                </div>
+              )}
+              {!isContactLoading && !hasContactError && !hasContactDetails && (
+                <p className="px-4 text-sm text-muted-foreground">
+                  Contact details are not available right now. Please use the message form.
+                </p>
               )}
             </div>
 
@@ -265,11 +301,23 @@ export function Contact() {
 
               <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold gap-2 text-sm">
                 {isSubmitting ? "Sending..." : "Send Message"}
-                <Send className="w-4 h-4" />
+                {isSubmitting ? (
+                  <LoaderCircle className="w-4 h-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Send className="w-4 h-4" aria-hidden="true" />
+                )}
               </Button>
 
               {statusMessage && (
-                <p className="text-sm mt-2 text-center text-muted-foreground">{statusMessage}</p>
+                <p
+                  role={submissionStatus === 'error' ? 'alert' : 'status'}
+                  aria-live={submissionStatus === 'error' ? 'assertive' : 'polite'}
+                  className={`text-sm mt-2 text-center ${
+                    submissionStatus === 'error' ? 'text-destructive' : 'text-muted-foreground'
+                  }`}
+                >
+                  {statusMessage}
+                </p>
               )}
             </form>
           </motion.div>
