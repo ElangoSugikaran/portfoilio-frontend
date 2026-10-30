@@ -75,12 +75,6 @@ export function About() {
   const cvUrl = primaryResume?.fileUrl
 
   const aboutImageUrl = about?.avatar?.url
-  const aboutMediaGallery = about?.introMediaGallery?.length
-    ? about.introMediaGallery
-    : about?.introMedia
-      ? [about.introMedia]
-      : []
-
   useEffect(() => {
     setImageUnavailable(false)
   }, [aboutImageUrl])
@@ -525,34 +519,6 @@ export function About() {
                   </div>
                 </div>
 
-                {aboutMediaGallery.length > 0 && (
-                  <section aria-label="About Me media gallery" className="shrink-0 space-y-2">
-                    <h5 className="text-xs font-bold uppercase tracking-wider text-foreground">Visual Showcase</h5>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                      {aboutMediaGallery.map((media) => (
-                        <div key={media.id} className="overflow-hidden rounded-xl border border-border/60 bg-card">
-                          {media.type?.toLowerCase() === 'video' ? (
-                            <video
-                              src={media.url}
-                              controls
-                              playsInline
-                              preload="metadata"
-                              aria-label={media.fileName || 'About Me showcase video'}
-                              className="aspect-video w-full bg-black object-contain"
-                            />
-                          ) : (
-                            <img
-                              src={media.url}
-                              alt={media.fileName || 'About Me showcase image'}
-                              loading="lazy"
-                              className="aspect-video w-full object-cover"
-                            />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
