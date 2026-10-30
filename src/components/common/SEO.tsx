@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSettings } from '@/hooks/api/useSettings';
 import { useAbout } from '@/hooks/api/useAbout';
+import { SITE_FULL_NAME, SITE_ROLE } from '@/lib/brand';
 
 interface SEOProps {
   title?: string;
@@ -13,21 +14,20 @@ export const SEO = ({ title, description, image }: SEOProps) => {
   const { data: settings } = useSettings();
 
   useEffect(() => {
-    const ownerName = about?.fullName || settings?.ownerName || 'Elango Sugikaran';
-    const roleTitle = about?.title || settings?.roles?.[0] || 'Full Stack Developer';
+    const ownerName = about?.fullName || SITE_FULL_NAME;
+    const roleTitle = about?.title || SITE_ROLE;
 
     const siteTitle =
       title ||
       settings?.seoTitle ||
-      (ownerName ? `${ownerName} | ${roleTitle}` : 'Sugikaran | Full Stack Developer');
+      (ownerName ? `${ownerName} | ${roleTitle}` : `Sugikaran | ${SITE_ROLE}`);
 
     const siteDescription =
       description ||
       settings?.seoDescription ||
       about?.tagline ||
-      settings?.heroIntro ||
       about?.bio?.slice(0, 160) ||
-      'Full Stack Developer specialized in scalable architectures and modern web apps.';
+      `${SITE_ROLE} specialized in scalable architectures and modern web apps.`;
 
     document.title = siteTitle;
 
@@ -55,7 +55,7 @@ export const SEO = ({ title, description, image }: SEOProps) => {
     updateMeta('twitter:title', siteTitle);
     updateMeta('twitter:description', siteDescription);
 
-    const img = image || about?.avatar?.url || settings?.profileImage?.url;
+    const img = image || about?.avatar?.url;
     if (img) {
       updateMeta('og:image', img, true);
       updateMeta('twitter:image', img);

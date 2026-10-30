@@ -75,6 +75,39 @@ export interface ApiProject {
   updatedAt: string;
 }
 
+export interface ProjectListParams {
+  feature?: boolean;
+  featured?: boolean;
+  category?: string;
+  page?: number;
+  pageSize?: number;
+  status?: 'PUBLISHED' | 'DRAFT';
+}
+
+export interface ProjectListPagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
+export interface ProjectCategoryFilter {
+  id: string;
+  name: string;
+  count: number;
+}
+
+export interface ApiProjectList {
+  projects: ApiProject[];
+  pagination?: ProjectListPagination;
+  filters?: {
+    total: number;
+    categories: ProjectCategoryFilter[];
+  };
+}
+
 export type SkillCategory =
   | 'FRONTEND'
   | 'BACKEND'
@@ -156,33 +189,14 @@ export interface ApiCertificate {
   updatedAt: string;
 }
 
-export interface ApiSocialLink {
-  id: string;
-  platform: string;
-  url: string;
-  isVisible: boolean;
-  sortOrder: number;
-}
-
 export interface ApiSettings {
   id: number;
-  ownerName: string;
-  roles: string[];
-  heroIntro?: string | null;
-  aboutText?: string | null;
+  brandLogo?: ApiAboutMedia | null;
   experienceFallbackText?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  address?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
   showExperience: boolean;
   showCertificates: boolean;
-  profileImage?: MediaItem | null;
-  hoverImage?: MediaItem | null;
-  aboutImage?: MediaItem | null;
-  cv?: MediaItem | null;
-  socialLinks?: ApiSocialLink[];
 }
 
 export interface ApiAboutMedia {
@@ -215,6 +229,7 @@ export interface ApiAbout {
   id: string;
   fullName: string;
   title: string;
+  titles?: string[];
   tagline?: string | null;
   bio: string;
   location?: string | null;
@@ -223,6 +238,7 @@ export interface ApiAbout {
   availableForWork: boolean;
   avatar?: ApiAboutMedia | null;
   introMedia?: ApiAboutMedia | null;
+  introMediaGallery?: ApiAboutMedia[];
   socialLinks: ApiAboutSocialLink[];
   resumes: ApiAboutResume[];
 }

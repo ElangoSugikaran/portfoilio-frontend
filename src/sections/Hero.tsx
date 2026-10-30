@@ -1,9 +1,10 @@
-import { useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { Download, ArrowRight, Code2 } from 'lucide-react'
-import { useSettings } from '@/hooks/api/useSettings'
+import { AlertCircle, Download, ArrowRight, Code2, RefreshCw } from 'lucide-react'
 import { useAbout } from '@/hooks/api/useAbout'
 import { scrollToAnchor } from '@/lib/scroll'
+import { Skeleton } from '@/components/ui/skeleton'
+import { SITE_ROLE } from '@/lib/brand'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
@@ -17,10 +18,54 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const LOCAL_HERO_VIDEO = '/images/hero-section/hero-section-video.mp4'
+
+function TypewriterRole({ roles }: { roles: string[] }) {
+  const [roleIndex, setRoleIndex] = useState(0)
+  const [displayedRole, setDisplayedRole] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const currentRole = roles[roleIndex] || roles[0] || ''
+
+  useEffect(() => {
+    let delay = isDeleting ? 40 : 75
+    if (!isDeleting && displayedRole === currentRole) {
+      delay = 1400
+    } else if (isDeleting && displayedRole.length === 0) {
+      setRoleIndex((index) => (index + 1) % roles.length)
+      setIsDeleting(false)
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      if (isDeleting) {
+        setDisplayedRole((role) => role.slice(0, -1))
+      } else if (displayedRole === currentRole) {
+        setIsDeleting(true)
+      } else {
+        setDisplayedRole(currentRole.slice(0, displayedRole.length + 1))
+      }
+    }, delay)
+
+    return () => window.clearTimeout(timer)
+  }, [currentRole, displayedRole, isDeleting, roles.length])
+
+  return (
+    <>
+      <span className="sr-only">{roles.join(', ')}.</span>
+      <span aria-hidden="true">
+        {displayedRole}
+        <span className="ml-1 inline-block h-[1em] w-px translate-y-[0.12em] bg-white/80 animate-pulse motion-reduce:animate-none" />
+      </span>
+    </>
+  )
+}
+
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null)
-  const { data: about } = useAbout()
-  const { data: settings } = useSettings()
+  const aboutQuery = useAbout()
+  const { data: about, isLoading, isError, refetch } = aboutQuery
+  const [videoSrc, setVideoSrc] = useState(LOCAL_HERO_VIDEO)
+  const [isVideoLoading, setIsVideoLoading] = useState(true)
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -46,22 +91,28 @@ export function Hero() {
     scrollToAnchor('projects')
   }
 
-  const fullName = about?.fullName || settings?.ownerName || 'Elango Sugikaran'
+  const fullName = about?.fullName || 'Elango Sugikaran'
   const nameParts = fullName.trim().split(' ')
   const firstName = nameParts[0] || 'Portfolio'
   const lastName = nameParts.slice(1).join(' ') || ''
 
-  const roles = about?.title || (
-    settings?.roles && settings.roles.length > 0 
-      ? settings.roles.join(' • ') 
-      : 'Full Stack Developer'
-  )
+  const roleOptions = useMemo(() => {
+    const uniqueRoles = new Map<string, string>()
+    const configuredTitles = about?.titles?.map((role) => role.trim()).filter(Boolean) || []
+    const primaryTitle = about?.title?.trim() || SITE_ROLE
+    const titles = configuredTitles.length > 0 ? configuredTitles : [primaryTitle]
+    titles.forEach((role) => {
+      uniqueRoles.set(role.toLowerCase().replace(/[\s-]/g, ''), role)
+    })
+    return Array.from(uniqueRoles.values())
+  }, [about?.title, about?.titles])
+  const rolesKey = roleOptions.join('|')
 
-  // Resume selection: primary from about documents, or first document, or settings.cv
+  // Resume documents are managed with the About profile.
   const primaryResume = about?.resumes?.find(r => r.isPrimary)?.fileUrl || about?.resumes?.[0]?.fileUrl
-  const cvUrl = primaryResume || settings?.cv?.url
+  const cvUrl = primaryResume
 
-  // Social links from about API (with active filter) or settings
+  // Social links are managed with the About profile.
   const aboutGithub = about?.socialLinks?.find(
     l => l.active && l.platform.toLowerCase().includes('github') && l.url
   )
@@ -69,21 +120,36 @@ export function Hero() {
     l => l.active && l.platform.toLowerCase().includes('linkedin') && l.url
   )
 
-  const githubLink = aboutGithub || settings?.socialLinks?.find(
-    l => l.isVisible && l.platform.toLowerCase() === 'github' && l.url
-  )
-  const linkedinLink = aboutLinkedin || settings?.socialLinks?.find(
-    l => l.isVisible && l.platform.toLowerCase() === 'linkedin' && l.url
-  )
+  const githubLink = aboutGithub
+  const linkedinLink = aboutLinkedin
 
   // Intro video source: Cloudinary video from about API or local fallback
-  const heroVideoUrl = about?.introMedia?.url || "/images/hero-section/hero-section-video.mp4"
+  const heroVideoUrl = about?.introMedia?.type === 'video'
+    ? about.introMedia.url
+    : LOCAL_HERO_VIDEO
+
+  useEffect(() => {
+    setVideoSrc(heroVideoUrl)
+    setIsVideoLoading(true)
+  }, [heroVideoUrl])
+
+  const handleVideoError = () => {
+    if (videoSrc !== LOCAL_HERO_VIDEO) {
+      setVideoSrc(LOCAL_HERO_VIDEO)
+      setIsVideoLoading(true)
+      return
+    }
+
+    setIsVideoLoading(false)
+  }
+
+  const isHeroVideoLoading = isLoading || isVideoLoading
 
   return (
     <section
       ref={containerRef}
       id="hero"
-      className="relative min-h-screen flex items-center overflow-hidden bg-black text-white"
+      className="relative min-h-dvh flex items-center overflow-hidden bg-black text-white"
     >
       {/* ── Parallax Background Video Sequence (Cloudinary / Local) ── */}
       <motion.div
@@ -91,16 +157,32 @@ export function Hero() {
         className="absolute inset-0 pointer-events-none z-0"
       >
         <video
-          key={heroVideoUrl}
-          src={heroVideoUrl}
+          key={videoSrc}
+          src={videoSrc}
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-full object-cover"
+          onLoadStart={() => setIsVideoLoading(true)}
+          onCanPlay={() => setIsVideoLoading(false)}
+          onError={handleVideoError}
+          poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23000000' width='1920' height='1080'/%3E%3C/svg%3E"
+          preload="auto"
+          className={`w-full h-full object-cover transition-opacity duration-700 ${isHeroVideoLoading ? 'opacity-0' : 'opacity-100'}`}
         >
-          <source src={heroVideoUrl} type="video/mp4" />
+          <source src={videoSrc} type="video/mp4" />
         </video>
+        {isHeroVideoLoading && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="absolute inset-0"
+          >
+            <span className="sr-only">Loading hero video.</span>
+            <Skeleton className="absolute inset-0 rounded-none bg-linear-to-br from-slate-900 via-slate-950 to-blue-950/70" />
+            <div className="absolute inset-0 bg-black/35" />
+          </div>
+        )}
         {/* Dark overlay for contrast - gradient from left */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-black/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />
@@ -134,12 +216,38 @@ export function Hero() {
               visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
             }}
           >
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter uppercase leading-[0.9]">
-              {firstName}{lastName && <><br />{lastName}</>}
-            </h1>
-            <h2 className="mt-6 text-sm sm:text-base md:text-lg font-light text-white/70 tracking-[0.4em] uppercase">
-              {roles}
-            </h2>
+            <div aria-busy={isLoading}>
+              {isLoading ? (
+                <div role="status" className="space-y-5">
+                  <span className="sr-only">Loading profile information.</span>
+                  <Skeleton className="h-12 w-3/4 max-w-xl rounded-lg bg-white/15 sm:h-16" />
+                  <Skeleton className="h-4 w-56 max-w-full bg-white/10" />
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-[clamp(2rem,8vw,4rem)] font-black text-white tracking-tighter uppercase leading-[0.9]">
+                    {firstName}{lastName && <><br />{lastName}</>}
+                  </h1>
+                  <h2 className="mt-6 text-[clamp(0.875rem,2vw,1.125rem)] font-light text-white/70 tracking-[0.4em] uppercase">
+                    <TypewriterRole key={rolesKey} roles={roleOptions} />
+                  </h2>
+                </>
+              )}
+              {isError && (
+                <div role="alert" className="mt-4 flex flex-wrap items-center gap-2 text-sm text-white/75">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-amber-300" />
+                  <span>Profile details could not be loaded. Showing available defaults.</span>
+                  <button
+                    type="button"
+                    onClick={() => void refetch()}
+                    className="inline-flex items-center gap-1 font-semibold text-white hover:text-white/80"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Retry
+                  </button>
+                </div>
+              )}
+            </div>
           </motion.div>
 
           <motion.div

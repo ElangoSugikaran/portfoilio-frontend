@@ -1,7 +1,9 @@
-﻿import { useEffect } from 'react';
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ExternalLink, Calendar, CheckCircle2, Layers, Target, Compass, Sparkles } from 'lucide-react';
+import { X, ExternalLink, Calendar, CheckCircle2, Layers, Target, Compass, Sparkles, Building2, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { isCompanyProject } from '@/lib/project-utils';
 import { RenderTechIcon } from '@/lib/tech-icons';
 import { RichText } from '@/components/common/RichText';
 import { formatDateRange } from '@/lib/date';
@@ -29,11 +31,13 @@ export function ProjectDetailsModal({ project, isOpen, onClose }: ProjectDetails
     }
   }, [isOpen, onClose]);
 
-  if (!project || !isOpen) return null;
+  if (!project || !isOpen || typeof document === 'undefined') return null;
 
-  return (
+  const isCompany = isCompanyProject(project);
+
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-10">
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -55,13 +59,15 @@ export function ProjectDetailsModal({ project, isOpen, onClose }: ProjectDetails
           {/* Header Bar */}
           <div className="flex items-center justify-between p-6 sm:p-8 border-b border-border/50 bg-muted/20">
             <div className="flex flex-col gap-1 pr-6">
-              <div className="flex items-center gap-3">
-                <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
-                  {project.category?.name || 'Project'}
-                </span>
-                {project.methodology && (
-                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-muted text-muted-foreground border border-border">
-                    {project.methodology}
+              <div className="flex items-center gap-3 flex-wrap">
+                {isCompany ? (
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 flex items-center gap-1.5 font-mono shadow-2xs">
+                    <Building2 className="w-3.5 h-3.5 text-amber-500" />
+                    Company Project · Showcased with Permission
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-primary/10 text-primary border border-primary/20">
+                    {project.category?.name || 'Project'}
                   </span>
                 )}
               </div>
@@ -98,6 +104,28 @@ export function ProjectDetailsModal({ project, isOpen, onClose }: ProjectDetails
                 {project.shortDescription}
               </p>
             </div>
+
+            {/* Company Project Notice */}
+            {isCompany && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/25 flex items-start gap-3.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="text-sm font-bold text-foreground">
+                      Company Project · Authorized Showcase
+                    </h4>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                      Commercial Production
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    Company Project. This is a company-owned commercial product that I worked on as a Full Stack Developer. It is showcased here with the company’s authorization. The source code is private and proprietary, so there is no public repository, but I’m happy to walk through the architecture and my contributions on request.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Description / Overview with sanitized RichText */}
             <div className="space-y-3">
@@ -222,7 +250,7 @@ export function ProjectDetailsModal({ project, isOpen, onClose }: ProjectDetails
 
           {/* Modal Footer */}
           <div className="p-6 border-t border-border/50 bg-muted/20 flex flex-wrap items-center justify-end gap-3">
-            {project.githubUrl && (
+            {project.githubUrl ? (
               <Button asChild variant="outline" className="rounded-xl h-11 border-border/60 cursor-pointer">
                 <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
@@ -231,7 +259,15 @@ export function ProjectDetailsModal({ project, isOpen, onClose }: ProjectDetails
                   View Code
                 </a>
               </Button>
-            )}
+            ) : isCompany ? (
+              <div 
+                className="h-11 px-4 rounded-xl border border-amber-500/25 bg-amber-500/10 text-muted-foreground text-xs font-semibold flex items-center gap-2 select-none"
+                title="Source code is private and proprietary to the company"
+              >
+                <Lock className="w-3.5 h-3.5 text-amber-500" />
+                <span>Private Company Repository</span>
+              </div>
+            ) : null}
             {project.liveUrl && (
               <Button asChild className="rounded-xl h-11 bg-primary text-primary-foreground font-semibold cursor-pointer">
                 <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
@@ -246,6 +282,7 @@ export function ProjectDetailsModal({ project, isOpen, onClose }: ProjectDetails
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

@@ -7,16 +7,22 @@ import { useThemeStore } from '@/store/theme';
 import { useAbout } from '@/hooks/api/useAbout';
 import { useSettings } from '@/hooks/api/useSettings';
 import { scrollToAnchor, scrollToTop, lockPageScroll, unlockPageScroll } from '@/lib/scroll';
+import { SITE_AVATAR, SITE_ROLE } from '@/lib/brand';
+import { ApiImage } from '@/components/ui/ApiImage';
 
 // ── Logo ──────────────────────────────────────
 function LogoMark({
   brandName,
   roleTitle,
+  avatarUrl,
+  avatarLoading,
   isOverDarkHero,
   onClick,
 }: {
   brandName: string;
   roleTitle: string;
+  avatarUrl: string;
+  avatarLoading: boolean;
   isOverDarkHero?: boolean;
   onClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 }) {
@@ -27,12 +33,16 @@ function LogoMark({
       aria-label="Go to top"
       className="flex items-center gap-2.5 group shrink-0 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-lg cursor-pointer"
     >
-      <div className={`w-8 h-8 shrink-0 rounded-xl flex items-center justify-center font-black text-xs transition-all duration-300 group-hover:scale-105 ${
+      <div className={`w-9 h-9 shrink-0 rounded-full bg-linear-to-br from-blue-400 via-blue-600 to-indigo-500 p-[2px] shadow-md shadow-blue-500/25 transition-all duration-300 group-hover:scale-105 ${
         isOverDarkHero
-          ? 'bg-linear-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/25'
-          : 'bg-foreground text-background group-hover:bg-primary group-hover:text-primary-foreground'
+          ? 'shadow-blue-400/30'
+          : 'shadow-blue-600/20'
       }`}>
-        {brandName.charAt(0) || 'S'}
+        <ApiImage
+          src={avatarUrl}
+          fallbackSrc={SITE_AVATAR}
+          loading={avatarLoading}
+        />
       </div>
       {/* Name — hidden on mobile, shown sm+ */}
       <div className="hidden sm:flex flex-col leading-none gap-[3px] text-left">
@@ -64,7 +74,7 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: about } = useAbout();
-  const { data: settings } = useSettings();
+  const { data: settings, isLoading: isSettingsLoading } = useSettings();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isOverHero, setIsOverHero] = useState(true);
@@ -75,22 +85,42 @@ export default function Navbar() {
   const clickTimeoutRef = useRef<number | null>(null);
 
   const brandName = 'Sugikaran';
-  const roleTitle = about?.title || settings?.roles?.[0] || 'Full Stack Developer';
+  const roleTitle = about?.title || SITE_ROLE;
+  const avatarUrl = settings?.brandLogo?.url?.trim() || SITE_AVATAR;
 
   const isHomePage = location.pathname === '/' || location.pathname === '/home';
-  const isOverDarkHero = isHomePage && isOverHero;
+  const isOverDarkHero = isHomePage && isOverHero && resolvedTheme === 'dark';
 
-  // Handle scroll state for header styling and hero boundary
+  // Handle scroll state for header styling and hero boundary (optimized to reduce layout thrashing)
   useEffect(() => {
+    let heroElement: HTMLElement | null = null;
+    let rafId: number | null = null;
+    let lastScrollY = window.scrollY;
+
     const handleScroll = () => {
-      const heroEl = document.getElementById('hero');
-      const heroBottom = heroEl ? heroEl.getBoundingClientRect().bottom : window.innerHeight;
-      setIsOverHero(heroBottom > 76);
-      setScrolled(window.scrollY > 20);
+      lastScrollY = window.scrollY;
+      if (rafId === null) {
+        rafId = requestAnimationFrame(() => {
+          // Only measure if we're near the hero boundary (avoid thrashing)
+          if (lastScrollY < 400) {
+            if (!heroElement) heroElement = document.getElementById('hero');
+            if (heroElement) {
+              const heroBottom = heroElement.getBoundingClientRect().bottom;
+              setIsOverHero(heroBottom > 76);
+            }
+          }
+          setScrolled(lastScrollY > 20);
+          rafId = null;
+        });
+      }
     };
+
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Lock scroll and handle Escape key on mobile drawer
@@ -229,6 +259,7 @@ export default function Navbar() {
   return (
     <>
       <motion.header
+        data-site-navbar
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -244,10 +275,10 @@ export default function Navbar() {
             transition-all duration-300
             ${
               isOverDarkHero
-                ? 'bg-black/55 backdrop-blur-md border-white/20 text-white shadow-xl shadow-black/20'
+                ? 'bg-black/85 border-white/20 text-white shadow-xl shadow-black/20'
                 : scrolled
-                ? 'bg-background/90 backdrop-blur-2xl border-border shadow-lg shadow-black/10 text-foreground'
-                : 'bg-background/80 backdrop-blur-md border-border/70 text-foreground'
+                ? 'bg-background/95 border-border shadow-lg shadow-black/10 text-foreground'
+                : 'bg-background/95 border-border/70 text-foreground'
             }
           `}
           style={{ height: '52px' }}
@@ -256,6 +287,8 @@ export default function Navbar() {
           <LogoMark
             brandName={brandName}
             roleTitle={roleTitle}
+            avatarUrl={avatarUrl}
+            avatarLoading={isSettingsLoading}
             isOverDarkHero={isOverDarkHero}
             onClick={handleLogoClick}
           />
