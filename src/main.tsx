@@ -6,8 +6,11 @@ import './index.css'
 import { router } from './routes/index.tsx'
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { queryClient } from "@/lib/query-client"
+import { initializeAnalytics } from "@/lib/analytics"
 
 export { queryClient }
+
+initializeAnalytics()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -7,6 +7,7 @@ import { Outlet, ScrollRestoration, useLocation } from "react-router-dom"
 import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 import { AmbientBackground } from "@/components/ui/AmbientBackground"
+import { trackPageView } from "@/lib/analytics"
 
 function LenisSync() {
   const syncLenis = useCallback((instance: Lenis | null) => {
@@ -32,6 +33,10 @@ function App() {
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
+
+  useEffect(() => {
+    trackPageView(location.pathname, document.title)
+  }, [location.pathname])
 
   // Synchronize Lenis with route changes and anchor navigation (Phase A2.3)
   useEffect(() => {

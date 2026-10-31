@@ -27,6 +27,7 @@ import { useAbout } from '@/hooks/api/useAbout'
 import { scrollToAnchor } from '@/lib/scroll'
 import { SITE_ROLE } from '@/lib/brand'
 import { getResumeDownloadUrl } from '@/lib/resume-download'
+import { trackEvent } from '@/lib/analytics'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -422,6 +423,7 @@ export function About() {
                         >
                           <a
                             href={cvDownloadUrl}
+                            onClick={() => trackEvent('cv_download')}
                             download
                             title="View or download official CV in PDF format"
                           >
