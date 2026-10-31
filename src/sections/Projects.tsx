@@ -438,7 +438,7 @@ const StoryCard = ({ project, index, total }: StoryCardProps) => {
         <div className="flex min-w-0 items-center gap-1.5 whitespace-nowrap sm:gap-2">
           <span className={`h-2 w-2 shrink-0 rounded-full ${theme.dot}`} />
           <span className="text-[11px] font-semibold uppercase tracking-widest text-foreground/80">
-            {project.status === 'PUBLISHED' ? 'Production Ready' : 'Engineering Showcase'}
+                        Production Ready
           </span>
           <span className="truncate text-[11px] opacity-75 sm:hidden">
             · {isCompany ? 'Commercial' : 'Independent'}

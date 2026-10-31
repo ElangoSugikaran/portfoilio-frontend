@@ -85,8 +85,8 @@ export function Contact() {
   const hasContactDetails = Boolean(contactEmail || contactPhone || contactAddress)
 
   const visibleSocials = (about?.socialLinks || [])
-    .filter(l => l.active && l.url)
-    .map(l => ({ id: l.id, platform: l.platform, url: l.url, isVisible: true, sortOrder: 0 }))
+    .filter(l => l.url)
+    .map((l, idx) => ({ id: l.id || `${l.platform}-${idx}`, platform: l.platform, url: l.url, isVisible: true, sortOrder: 0 }))
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

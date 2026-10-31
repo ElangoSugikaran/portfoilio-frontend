@@ -109,15 +109,15 @@ export function Hero() {
   const rolesKey = roleOptions.join('|')
 
   // Resume documents are managed with the About profile.
-  const primaryResume = about?.resumes?.find(r => r.isPrimary)?.fileUrl || about?.resumes?.[0]?.fileUrl
-  const cvUrl = primaryResume
+  const primaryResume = about?.resumes?.find(r => r.isPrimary) || about?.resumes?.[0]
+  const cvUrl = primaryResume?.downloadUrl
 
   // Social links are managed with the About profile.
   const aboutGithub = about?.socialLinks?.find(
-    l => l.active && l.platform.toLowerCase().includes('github') && l.url
+    l => l.platform.toLowerCase().includes('github') && l.url
   )
   const aboutLinkedin = about?.socialLinks?.find(
-    l => l.active && l.platform.toLowerCase().includes('linkedin') && l.url
+    l => l.platform.toLowerCase().includes('linkedin') && l.url
   )
 
   const githubLink = aboutGithub
@@ -269,16 +269,30 @@ export function Hero() {
             </a>
 
             {/* Resume Button */}
-            {cvUrl && (
+            {isLoading ? (
+              <Skeleton
+                role="status"
+                aria-label="Loading resume availability"
+                className="h-12 w-32 rounded-full bg-white/15"
+              />
+            ) : cvUrl ? (
               <a
                 href={cvUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                download
                 className="h-12 px-6 rounded-full font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-sm cursor-pointer group"
               >
                 <Download className="w-4 h-4 text-white/90 group-hover:-translate-y-0.5 transition-transform duration-300" />
                 <span>Resume</span>
               </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                title="Upload a resume in the admin About settings to enable downloads."
+                className="h-12 px-6 rounded-full font-semibold text-sm bg-white/5 border border-white/10 text-white/45 flex items-center gap-2 cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                <span>Resume unavailable</span>
+              </span>
             )}
 
             {/* Subtle separator */}
