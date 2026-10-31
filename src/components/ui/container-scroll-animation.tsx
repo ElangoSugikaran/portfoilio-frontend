@@ -26,17 +26,13 @@ export const ContainerScroll = ({
     };
   }, []);
 
-  const scaleDimensions = () => {
-    return isMobile ? [0.85, 0.98] : [1.03, 1];
-  };
-
-  const rotate = useTransform(scrollYProgress, [0, 0.65], [18, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.65], scaleDimensions());
-  const translate = useTransform(scrollYProgress, [0, 0.65], [30, -30]);
+  const rotate = useTransform(scrollYProgress, [0, 0.65], isMobile ? [0, 0] : [18, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.65], isMobile ? [1, 1] : [1.03, 1]);
+  const translate = useTransform(scrollYProgress, [0, 0.65], isMobile ? [0, 0] : [30, -30]);
 
   return (
     <div
-      className="flex items-center justify-center relative px-2 sm:px-4 md:px-8 py-8 md:py-16"
+      className="flex items-center justify-center relative px-2 sm:px-4 md:px-8 py-4 sm:py-8 md:py-16"
       ref={containerRef}
     >
       <div
@@ -93,7 +89,7 @@ export const Card = ({
         boxShadow:
           "0 0 #0000004d, 0 14px 28px rgba(0,0,0,0.25), 0 35px 50px rgba(0,0,0,0.22), 0 75px 80px rgba(0,0,0,0.15)",
       }}
-      className="max-w-5xl mx-auto h-[38rem] sm:h-[40rem] md:h-[43rem] w-full border-[5px] sm:border-[7px] md:border-[9px] border-zinc-700/80 dark:border-zinc-800 p-2 sm:p-3 md:p-4 bg-zinc-900 rounded-[34px] sm:rounded-[42px] md:rounded-[48px] shadow-2xl relative"
+      className="max-w-5xl mx-auto h-[min(38rem,calc(100svh-7rem))] sm:h-auto w-full border-[5px] sm:border-[7px] md:border-[9px] border-zinc-700/80 dark:border-zinc-800 p-2 sm:p-3 md:p-4 bg-zinc-900 rounded-[34px] sm:rounded-[42px] md:rounded-[48px] shadow-2xl relative"
     >
       {/* Tablet Camera / Sensor Punch */}
       <div className="absolute top-2.5 sm:top-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 pointer-events-none select-none">
@@ -101,7 +97,7 @@ export const Card = ({
       </div>
 
       {/* Screen Viewport */}
-      <div className="h-full w-full overflow-hidden rounded-[22px] sm:rounded-[30px] md:rounded-[36px] bg-card text-card-foreground border border-border/50 shadow-inner flex flex-col relative">
+      <div className="h-full w-full overflow-hidden rounded-[22px] sm:h-auto sm:rounded-[30px] md:rounded-[36px] bg-card text-card-foreground border border-border/50 shadow-inner flex flex-col relative">
         {children}
       </div>
     </motion.div>
