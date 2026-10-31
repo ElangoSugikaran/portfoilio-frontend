@@ -1,8 +1,8 @@
 export interface MediaItem {
   id: string;
   type: string;
-  provider: string;
   url: string;
+  provider?: string;
   publicId?: string;
   width?: number;
   height?: number;
@@ -11,7 +11,7 @@ export interface MediaItem {
 
 export interface ProjectPhase {
   id: string;
-  projectId: string;
+  projectId?: string;
   name: string;
   tasks: string[];
   startDate?: string | null;
@@ -23,7 +23,7 @@ export interface ProjectCategory {
   id: string;
   name: string;
   slug: string;
-  sortOrder: number;
+  sortOrder?: number;
 }
 
 export interface Technology {
@@ -37,8 +37,8 @@ export interface Technology {
 
 export interface ProjectMediaLink {
   id: string;
-  projectId: string;
-  mediaId: string;
+  projectId?: string;
+  mediaId?: string;
   role: 'SCREENSHOT' | 'DIAGRAM' | 'DEMO';
   group?: string | null;
   caption?: string | null;
@@ -52,27 +52,17 @@ export interface ApiProject {
   title: string;
   shortDescription: string;
   description: string;
-  status: 'PUBLISHED' | 'DRAFT';
   featured: boolean;
-  sortOrder: number;
   githubUrl?: string | null;
   liveUrl?: string | null;
-  methodology?: string | null;
   aim?: string | null;
   objectives: string[];
   features: string[];
-  skillsDemonstrated: string[];
-  startedAt?: string | null;
-  completedAt?: string | null;
-  categoryId?: string | null;
-  thumbnailId?: string | null;
   category?: ProjectCategory | null;
   thumbnail?: MediaItem | null;
   technologies: Technology[];
   media: ProjectMediaLink[];
   phases: ProjectPhase[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface ProjectListParams {
@@ -124,8 +114,8 @@ export interface ApiSkill {
   name: string;
   category: SkillCategory;
   icon?: string | null;
-  showInSkills: boolean;
-  sortOrder: number;
+  showInSkills?: boolean;
+  sortOrder?: number;
 }
 
 export interface ApiExperience {
@@ -138,10 +128,6 @@ export interface ApiExperience {
   endDate?: string | null;
   description?: string | null;
   icon?: string | null;
-  isVisible: boolean;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export type EducationType =
@@ -162,11 +148,6 @@ export interface ApiEducation {
   grade?: string | null;
   description?: string | null;
   icon?: string | null;
-  showOnHome: boolean;
-  isVisible: boolean;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export type CertificateCategory =
@@ -181,52 +162,39 @@ export interface ApiCertificate {
   category: CertificateCategory;
   issuedAt?: string | null;
   credentialUrl?: string | null;
-  imageId: string;
   image?: MediaItem | null;
-  isVisible: boolean;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface ApiSettings {
-  id: number;
   brandLogo?: ApiAboutMedia | null;
   experienceFallbackText?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;
-  showExperience: boolean;
-  showCertificates: boolean;
 }
 
 export interface ApiAboutMedia {
-  id: string;
+  id?: string;
   url: string;
   fileName?: string | null;
   type?: 'image' | 'video' | 'document' | string;
 }
 
 export interface ApiAboutSocialLink {
-  id: string;
+  id?: string;
   platform: string;
   url: string;
   icon?: string;
-  active: boolean;
+  active?: boolean;
 }
 
 export interface ApiAboutResume {
-  id: string;
-  title: string;
-  fileId: string;
-  fileUrl: string;
+  downloadUrl?: string;
+  fileUrl?: string;
   fileName?: string | null;
-  fileSize?: string | null;
-  isPrimary: boolean;
-  uploadedAt: string;
+  isPrimary?: boolean;
 }
 
 export interface ApiAbout {
-  id: string;
   fullName: string;
   title: string;
   titles?: string[];
@@ -238,7 +206,6 @@ export interface ApiAbout {
   availableForWork: boolean;
   avatar?: ApiAboutMedia | null;
   introMedia?: ApiAboutMedia | null;
-  introMediaGallery?: ApiAboutMedia[];
   socialLinks: ApiAboutSocialLink[];
   resumes: ApiAboutResume[];
 }

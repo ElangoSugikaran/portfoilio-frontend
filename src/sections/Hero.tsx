@@ -111,15 +111,18 @@ export function Hero() {
 
   // Resume documents are managed with the About profile.
   const primaryResume = about?.resumes?.find(r => r.isPrimary) || about?.resumes?.[0]
-  const cvUrl = primaryResume?.fileUrl
-  const cvDownloadUrl = cvUrl ? getResumeDownloadUrl(cvUrl, primaryResume.fileName) : undefined
+  const cvDownloadUrl = primaryResume?.downloadUrl || (
+    primaryResume?.fileUrl
+      ? getResumeDownloadUrl(primaryResume.fileUrl, primaryResume.fileName)
+      : undefined
+  )
 
   // Social links are managed with the About profile.
   const aboutGithub = about?.socialLinks?.find(
-    l => l.active && l.platform.toLowerCase().includes('github') && l.url
+    l => l.platform.toLowerCase().includes('github') && l.url
   )
   const aboutLinkedin = about?.socialLinks?.find(
-    l => l.active && l.platform.toLowerCase().includes('linkedin') && l.url
+    l => l.platform.toLowerCase().includes('linkedin') && l.url
   )
 
   const githubLink = aboutGithub
@@ -271,7 +274,13 @@ export function Hero() {
             </a>
 
             {/* Resume Button */}
-            {cvUrl && (
+            {isLoading ? (
+              <Skeleton
+                role="status"
+                aria-label="Loading resume availability"
+                className="h-12 w-32 rounded-full bg-white/15"
+              />
+            ) : cvDownloadUrl ? (
               <a
                 href={cvDownloadUrl}
                 download
@@ -280,6 +289,15 @@ export function Hero() {
                 <Download className="w-4 h-4 text-white/90 group-hover:-translate-y-0.5 transition-transform duration-300" />
                 <span>Resume</span>
               </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                title="Upload a resume in the admin About settings to enable downloads."
+                className="h-12 px-6 rounded-full font-semibold text-sm bg-white/5 border border-white/10 text-white/45 flex items-center gap-2 cursor-not-allowed"
+              >
+                <Download className="w-4 h-4" />
+                <span>Resume unavailable</span>
+              </span>
             )}
 
             {/* Subtle separator */}
