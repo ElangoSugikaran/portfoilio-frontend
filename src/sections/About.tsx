@@ -26,6 +26,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useAbout } from '@/hooks/api/useAbout'
 import { scrollToAnchor } from '@/lib/scroll'
 import { SITE_ROLE } from '@/lib/brand'
+import { getResumeDownloadUrl } from '@/lib/resume-download'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -73,10 +74,13 @@ export function About() {
 
   const resumes = about?.resumes ?? []
   const primaryResume = resumes.find((r) => r.isPrimary) || resumes[0]
-  const cvDownloadUrl = primaryResume?.downloadUrl
+  const cvDownloadUrl = primaryResume?.downloadUrl || (
+    primaryResume?.fileUrl
+      ? getResumeDownloadUrl(primaryResume.fileUrl, primaryResume.fileName)
+      : undefined
+  )
 
   const aboutImageUrl = about?.avatar?.url
-
   useEffect(() => {
     setImageUnavailable(false)
   }, [aboutImageUrl])
@@ -419,7 +423,7 @@ export function About() {
                           <a
                             href={cvDownloadUrl}
                             download
-                            title="Download CV as a PDF"
+                            title="View or download official CV in PDF format"
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>Download CV</span>

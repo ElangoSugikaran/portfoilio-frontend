@@ -188,7 +188,9 @@ export interface ApiAboutSocialLink {
 }
 
 export interface ApiAboutResume {
-  downloadUrl: string;
+  downloadUrl?: string;
+  fileUrl?: string;
+  fileName?: string | null;
   isPrimary?: boolean;
 }
 

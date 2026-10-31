@@ -5,6 +5,7 @@ import { useAbout } from '@/hooks/api/useAbout'
 import { scrollToAnchor } from '@/lib/scroll'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SITE_ROLE } from '@/lib/brand'
+import { getResumeDownloadUrl } from '@/lib/resume-download'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
@@ -110,7 +111,11 @@ export function Hero() {
 
   // Resume documents are managed with the About profile.
   const primaryResume = about?.resumes?.find(r => r.isPrimary) || about?.resumes?.[0]
-  const cvUrl = primaryResume?.downloadUrl
+  const cvDownloadUrl = primaryResume?.downloadUrl || (
+    primaryResume?.fileUrl
+      ? getResumeDownloadUrl(primaryResume.fileUrl, primaryResume.fileName)
+      : undefined
+  )
 
   // Social links are managed with the About profile.
   const aboutGithub = about?.socialLinks?.find(
@@ -275,9 +280,9 @@ export function Hero() {
                 aria-label="Loading resume availability"
                 className="h-12 w-32 rounded-full bg-white/15"
               />
-            ) : cvUrl ? (
+            ) : cvDownloadUrl ? (
               <a
-                href={cvUrl}
+                href={cvDownloadUrl}
                 download
                 className="h-12 px-6 rounded-full font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-sm cursor-pointer group"
               >
