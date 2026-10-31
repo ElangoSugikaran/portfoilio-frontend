@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { trackEvent } from '@/lib/analytics'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
@@ -105,6 +106,7 @@ export function Contact() {
     sendMessage(data, {
       onSuccess: () => {
         setSubmissionStatus('success')
+        trackEvent('contact_form_submit')
         setStatusMessage("Message sent successfully! Thank you for reaching out.")
         formElement.reset()
       },

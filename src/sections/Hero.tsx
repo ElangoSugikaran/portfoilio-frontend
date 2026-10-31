@@ -6,6 +6,7 @@ import { scrollToAnchor } from '@/lib/scroll'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SITE_ROLE } from '@/lib/brand'
 import { getResumeDownloadUrl } from '@/lib/resume-download'
+import { trackEvent } from '@/lib/analytics'
 
 const GithubIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
@@ -283,6 +284,7 @@ export function Hero() {
             ) : cvDownloadUrl ? (
               <a
                 href={cvDownloadUrl}
+                onClick={() => trackEvent('cv_download')}
                 download
                 className="h-12 px-6 rounded-full font-semibold text-sm bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:scale-105 flex items-center gap-2 shadow-sm cursor-pointer group"
               >
